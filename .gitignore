@@ -35,4 +35,13 @@ firebase-debug.log
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db 
+Thumbs.db
+
+# Firebase configuration files
+allin/firebase-config.js
+allin/firebase-config-v2.js
+
+# API keys and sensitive configuration
+allin/api-keys.js
+allin/config.js
+allin/.env.js 

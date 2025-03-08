@@ -601,7 +601,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     
-    <!-- Your Firebase configuration and custom scripts -->
+    <!-- Environment variables -->
+    <script src=".env.js"></script>
     <script src="firebase-config.js"></script>
     <script src="app.js"></script>
     
@@ -831,10 +832,8 @@
         // Load videos from YouTube playlist (initial or with page token)
         async function loadPlaylistVideos(pageToken = null) {
             try {
-                isLoadingMoreVideos = true;
-                
                 // Use the YouTube Data API with the provided API key
-                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
                 
                 // Zvýšime počet videí na stránku
                 const pageSize = 50; // Maximálna hodnota povolená API
@@ -2047,7 +2046,7 @@
                     const apiResponse = await fetch(apiUrl, {
                         method: 'GET',
                         headers: {
-                            'X-RapidAPI-Key': '3c2d2a7e6fmsh4b1e7a9aec40d9dp1e9d6bjsn3d34bd5a0b0d',
+                            'X-RapidAPI-Key': window.ENV?.RAPID_API_KEY || '3c2d2a7e6fmsh4b1e7a9aec40d9dp1e9d6bjsn3d34bd5a0b0d',
                             'X-RapidAPI-Host': 'subtitles-for-youtube.p.rapidapi.com'
                         }
                     });
@@ -2704,6 +2703,55 @@
             const minutes = Math.floor(seconds / 60);
             const remainingSeconds = Math.floor(seconds % 60);
             return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Get the total number of videos in the playlist
+        async function getPlaylistItemCount(playlistId) {
+            try {
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                
+                const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id=${playlistId}&key=${apiKey}`;
+                const infoResponse = await fetch(playlistInfoUrl);
+                const infoData = await infoResponse.json();
+                
+                if (infoData.items && infoData.items.length > 0) {
+                    return infoData.items[0].contentDetails.itemCount;
+                }
+            } catch (error) {
+                console.error('Error fetching playlist item count:', error);
+                return 0;
+            }
+        }
+
+        // Get video duration from YouTube API
+        async function getVideoDuration(videoId) {
+            try {
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
+                
+                const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${apiKey}`;
+                const videoDetailsResponse = await fetch(videoDetailsUrl);
+                const videoDetailsData = await videoDetailsResponse.json();
+                
+                if (videoDetailsData.items && videoDetailsData.items.length > 0) {
+                    return videoDetailsData.items[0].contentDetails.duration;
+                }
+            } catch (error) {
+                console.error('Error fetching video duration:', error);
+                return null;
+            }
+        }
+
+        // Get captions for a YouTube video
+        async function getYouTubeCaptions(videoId, language = 'en') {
+            try {
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
+                
+                const captionTracksUrl = `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`;
+                // ... existing code ...
+            } catch (error) {
+                console.error('Error fetching captions:', error);
+                return null;
+            }
         }
     </script>
 </body>

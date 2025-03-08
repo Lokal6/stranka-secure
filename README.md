@@ -17,8 +17,23 @@ A simple, responsive website template with Firebase authentication and Firestore
 
 1. Clone this repository
 2. All website files are in the `allin` directory
-3. The Firebase configuration is already set up and encrypted for security
-4. Google Sign-In is configured with the provided client ID
+3. Set up environment variables:
+   - Copy `allin/.env.js.example` to `allin/.env.js`
+   - Replace placeholder values with your actual API keys
+4. The Firebase configuration is already set up and encrypted for security
+5. Google Sign-In is configured with the provided client ID
+
+## API Keys and Environment Variables
+
+For security reasons, API keys are not included in the repository. You need to:
+
+1. Create a `.env.js` file in the `allin` directory (copy from `.env.js.example`)
+2. Add your own API keys:
+   - Firebase API Key
+   - YouTube API Key
+   - RapidAPI Key
+
+This approach prevents sensitive credentials from being exposed in your Git repository.
 
 ## Deployment
 
@@ -45,10 +60,11 @@ The website is already deployed to Firebase Hosting at `https://projekt-9ef39.we
 
 ## Security Measures
 
-- Firebase configuration is encrypted using Base64 encoding
-- Configuration is decrypted at runtime
+- API keys and sensitive credentials are stored in `.env.js` which is excluded from Git
+- Environment variables are used to access API keys at runtime
+- Firebase configuration uses environment variables with fallbacks
 - Object.freeze() is used to prevent modification of configuration in the browser console
-- For production use, consider using environment variables or a backend service
+- `.gitignore` is configured to exclude sensitive files
 
 ## Firebase Services Used
 
@@ -63,12 +79,15 @@ The website is already deployed to Firebase Hosting at `https://projekt-9ef39.we
   - `styles.css` - CSS styling
   - `firebase-config.js` - Firebase configuration
   - `app.js` - Application logic
+  - `.env.js` - Environment variables (not in repository)
+  - `.env.js.example` - Example environment variables file
   - `404.html` - Custom error page
   - `robots.txt` - Search engine instructions
   - `sitemap.xml` - Site map for search engines
 - `firebase.json` - Firebase configuration
 - `.firebaserc` - Firebase project settings
 - `NASADENIE_ALLIN.txt` - Deployment instructions
+- `.gitignore` - Git ignore configuration
 
 ## Usage
 
