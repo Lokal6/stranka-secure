@@ -1,0 +1,7 @@
+---
+description: General project guidelines
+globs: ["**/*"]
+alwaysApply: true
+---
+
+Work smart and simple. Prefer concise, efficient solutions over complex ones. Focus on readability and maintainability. 

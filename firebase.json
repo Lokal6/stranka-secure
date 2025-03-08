@@ -1,0 +1,21 @@
+{
+  "hosting": {
+    "public": "allin",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "README.md",
+      "*.bat",
+      "*.exe",
+      "*.cmd",
+      "*.ps1"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+} 

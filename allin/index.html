@@ -1,0 +1,2710 @@
+<!DOCTYPE html>
+<html lang="en" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-client_id" content="215580281626-jr2vimjk1md8d1jliujj8v2iaaunr7e.apps.googleusercontent.com">
+    <title>Solo Leveling</title>
+    <link rel="stylesheet" href="background.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Override button styles for Google sign-in */
+        #googleSignInBtn {
+            background-color: transparent !important;
+        }
+        #googleSignInBtn:hover {
+            background-color: transparent !important;
+        }
+        
+        /* Full page background */
+        .page-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        /* Welcome message styling */
+        #welcomeMessage {
+            font-size: 0.875rem; /* Menšia veľkosť písma, rovnaká ako Logout tlačidlo */
+            color: white;
+            transition: all 0.3s ease;
+            padding: 6px 12px; /* Menší padding, rovnaký ako Logout tlačidlo */
+            border-radius: 4px;
+            background-color: #4285f4;
+            text-shadow: none;
+            font-weight: 500; /* Stredná hrúbka písma, rovnaká ako Logout tlačidlo */
+            display: inline-block; /* Aby sa bublina prispôsobila textu */
+            line-height: 1.5; /* Rovnaká výška riadku ako Logout tlačidlo */
+        }
+        
+        /* Background images */
+        .page-background img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        
+        /* Mobile/Desktop visibility */
+        .mobile-bg {
+            display: none;
+        }
+        
+        .desktop-bg {
+            display: block;
+        }
+        
+        /* Mobile devices */
+        @media only screen and (max-width: 768px) {
+            .mobile-bg {
+                display: block;
+            }
+            
+            .desktop-bg {
+                display: none;
+            }
+        }
+        
+        /* YouTube video embed styles */
+        .youtube-embed {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .youtube-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Hero section adjustments for video */
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: transparent; /* Odstránené modrozelené pozadie */
+            border-radius: 12px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8); /* Pridaný tieň pre lepšiu čitateľnosť textu */
+        }
+        
+        .hero .cta-button {
+            margin-top: 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .hero .cta-button:hover {
+            background-color: #3367d6;
+        }
+        
+        /* Video selection modal */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .video-modal-content {
+            background-color: rgba(25, 25, 25, 0.9);
+            margin: 5% auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            color: white;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            max-height: 80vh;
+        }
+        
+        .video-list-container {
+            position: relative;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        
+        .video-list {
+            overflow-y: auto;
+            max-height: 60vh;
+            padding-right: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #4285f4 rgba(50, 50, 50, 0.3);
+        }
+        
+        .video-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .video-list::-webkit-scrollbar-track {
+            background: rgba(50, 50, 50, 0.3);
+            border-radius: 4px;
+        }
+        
+        .video-list::-webkit-scrollbar-thumb {
+            background-color: #4285f4;
+            border-radius: 4px;
+        }
+        
+        .video-item {
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: rgba(50, 50, 50, 0.5);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .video-item:hover {
+            transform: translateX(5px);
+            background-color: rgba(70, 70, 70, 0.7);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .video-item.active {
+            background-color: rgba(66, 133, 244, 0.3);
+            border-left: 4px solid #4285f4;
+        }
+        
+        .video-thumbnail {
+            width: 160px;
+            height: 90px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        
+        .video-info {
+            padding: 10px 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .video-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            max-height: 2.8em; /* Fallback for non-webkit browsers: 2 lines × 1.4 line height */
+        }
+        
+        .video-duration {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .position-info {
+            color: #4285f4;
+            font-weight: bold;
+        }
+        
+        .duration-info {
+            color: #aaa;
+        }
+        
+        .video-index {
+            font-size: 12px;
+            color: #aaa;
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-modal:hover {
+            color: white;
+        }
+        
+        .modal-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Mobile adjustments for video list */
+        @media only screen and (max-width: 768px) {
+            .video-thumbnail {
+                width: 120px;
+                height: 68px;
+            }
+            
+            .video-title {
+                font-size: 13px;
+                -webkit-line-clamp: 2;
+                line-clamp: 2;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                box-orient: vertical;
+                max-height: 2.6em; /* Fallback for non-webkit browsers: 2 lines × 1.3 line height */
+            }
+            
+            .video-modal-content {
+                margin: 10% auto;
+                width: 95%;
+                padding: 15px;
+                max-height: 85vh;
+            }
+            
+            .video-list {
+                max-height: 65vh;
+            }
+            
+            .video-index {
+                display: none;
+            }
+        }
+        
+        /* Next video button */
+        .next-video-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            z-index: 10;
+            display: none; /* Hidden by default */
+        }
+        
+        .next-video-button:hover {
+            background-color: #3367d6;
+        }
+
+        /* Add styles for buttons container */
+        .hero-content .buttons-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px auto 0;
+            flex-wrap: nowrap; /* Force single line on all screens */
+            justify-content: center;
+            align-items: center; /* Ensure vertical alignment of all buttons */
+            width: 100%;
+            max-width: 800px; /* Match the max-width of other containers */
+            z-index: 100;
+            position: relative;
+        }
+
+        /* Base button styles */
+        .hero-content button {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 500;
+            line-height: 1.5;
+            white-space: nowrap;
+            flex: 1; /* Equal width buttons */
+            text-align: center;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 160px; /* Limit maximum width */
+            min-width: 120px; /* Ensure minimum width */
+            margin: 0 5px; /* Add horizontal margin */
+            box-sizing: border-box; /* Include padding in height calculation */
+            vertical-align: middle; /* Ensure vertical alignment */
+        }
+
+        /* Ensure all buttons have the same styling, including the PlayList button */
+        .hero-content .cta-button {
+            margin-top: 0; /* Override any margin-top that might be affecting the PlayList button */
+            height: 40px; /* Ensure same height as other buttons */
+            padding: 10px 16px; /* Ensure same padding as other buttons */
+            font-size: 0.875rem; /* Ensure same font size as other buttons */
+            line-height: 1.5; /* Ensure same line height as other buttons */
+        }
+
+        .hero-content button:hover {
+            background-color: #3367d6;
+        }
+
+        /* Captions display area */
+        .captions-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            padding: 15px;
+            color: white;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none; /* Hidden by default */
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .captions-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .captions-container::-webkit-scrollbar-track {
+            background: rgba(50, 50, 50, 0.3);
+            border-radius: 4px;
+        }
+
+        .captions-container::-webkit-scrollbar-thumb {
+            background-color: #4285f4;
+            border-radius: 4px;
+        }
+
+        .caption-text {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .caption-text.active {
+            background-color: rgba(66, 133, 244, 0.3);
+            font-weight: bold;
+        }
+
+        /* Mobile styles */
+        @media only screen and (max-width: 768px) {
+            .hero-content .buttons-container {
+                padding: 10px;
+                gap: 8px;
+                flex-wrap: wrap; /* Allow wrapping on mobile */
+                max-width: 100%; /* Full width on mobile */
+            }
+
+            .hero-content button {
+                padding: 8px 12px;
+                width: calc(50% - 8px); /* Two buttons per row with gap */
+                min-width: unset;
+                max-width: unset;
+                font-size: 0.8rem;
+                height: 36px;
+                flex: 0 0 auto; /* Don't grow or shrink */
+                margin: 4px; /* Smaller margin on mobile */
+            }
+
+            .next-video-button {
+                position: fixed !important;
+                bottom: 20px !important;
+                right: 20px !important;
+                z-index: 1000 !important;
+            }
+        }
+
+        /* Override for the PlayList button in the buttons container */
+        .hero-content .buttons-container .cta-button {
+            margin-top: 0;
+            padding: 10px 16px;
+            font-size: 0.875rem;
+            height: 40px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body style="background-color: transparent !important; background-image: none !important;">
+    <!-- Full page background -->
+    <div class="page-background" style="z-index: -999 !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important;">
+        <!-- Mobile image (hidden on desktop) -->
+        <img src="assets/images/solo-leveling-igris-shadow-phone-wallpaper-4k-uhdpaper.com-149@5@d.jpg" 
+             class="mobile-bg" 
+             alt="Solo Leveling Igris Shadow Mobile Background"
+             style="z-index: -10;">
+        
+        <!-- Desktop image (hidden on mobile) -->
+        <img src="assets/images/solo-leveling-igris-shadow-8k-wallpaper-uhdpaper.com-149@5@d.jpg" 
+             class="desktop-bg" 
+             alt="Solo Leveling Igris Shadow Desktop Background"
+             style="z-index: -10;">
+    </div>
+    
+    <!-- Lock Screen -->
+    <div id="lockScreen" class="lock-screen">
+        <div class="lock-content">
+            <div class="lock-overlay">
+                <div class="error-message" id="lockScreenError"></div>
+                <div class="google-signin-button">
+                    <button id="googleSignInBtn" type="button">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+                        <span>Sign in with Google</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content (Hidden until authenticated) -->
+    <div id="mainContent" style="display: none; background: transparent !important; background-color: transparent !important; background-image: none !important;">
+        <header id="mainHeader" style="background-color: white !important; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;">
+            <nav style="background-color: white !important;">
+                <div class="logo" id="welcomeMessage">My Website</div>
+                <ul class="nav-links">
+                    <li><a href="#home" style="color: #333;">Home</a></li>
+                    <li><a href="#about" style="color: #333;">About</a></li>
+                    <li><a href="#services" style="color: #333;">Services</a></li>
+                    <li><a href="#video" style="color: #333;">Video</a></li>
+                    <li><a href="#contact" style="color: #333;">Contact</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <div class="night-mode-toggle" id="nightModeToggle" style="font-weight: bold;">Night Style</div>
+                    <button id="logoutBtn">Logout</button>
+                </div>
+            </nav>
+        </header>
+
+        <main style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+            <section id="home" class="hero" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                <div class="hero-content" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                    <h1>Reverend Insanity</h1>
+                    <div class="youtube-embed">
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            src="https://www.youtube.com/embed/pVkNuqSjCyo" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                        <button id="nextVideoBtn" class="next-video-button">Next Video</button>
+                    </div>
+                    <div class="buttons-container">
+                        <button class="cta-button">PlayList</button>
+                        <button id="saveTimestampBtn">Save Timestamp</button>
+                        <button id="toggleVideoBtn">
+                            <span>Show Video</span>
+                        </button>
+                        <button id="toggleCaptionsBtn">
+                            <span>Show Captions</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Captions display area -->
+                    <div id="captionsContainer" class="captions-container">
+                        <div id="captionsText">Captions will appear here when available...</div>
+                        <div id="captionsError" style="color: #ff6b6b; margin-top: 10px; display: none;">
+                            Error loading captions. Please try again later.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="about" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                <h2>About Us</h2>
+                <p>We are a company dedicated to providing excellent services to our customers.</p>
+            </section>
+
+            <section id="services" class="services" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                <h2>Our Services</h2>
+                <div class="service-cards">
+                    <div class="card" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                        <h3>Service 1</h3>
+                        <p>Description of service 1</p>
+                    </div>
+                    <div class="card" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                        <h3>Service 2</h3>
+                        <p>Description of service 2</p>
+                    </div>
+                    <div class="card" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                        <h3>Service 3</h3>
+                        <p>Description of service 3</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="contact" style="background: transparent !important; background-color: transparent !important; background-image: none !important;">
+                <h2>Contact Us</h2>
+                <form id="contactForm">
+                    <input type="text" placeholder="Name" required>
+                    <input type="email" placeholder="Email" required>
+                    <textarea placeholder="Message" required></textarea>
+                    <button type="submit">Send Message</button>
+                </form>
+            </section>
+        </main>
+
+        <footer style="background-color: white !important; color: #333 !important; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1) !important;">
+            <p>&copy; 2023 My Website. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Video Selection Modal -->
+    <div id="videoModal" class="video-modal">
+        <div class="video-modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2 class="modal-title">Select a Video</h2>
+            <div class="video-list-container">
+                <div class="video-list" id="videoList">
+                    <!-- Video items will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    
+    <!-- Your Firebase configuration and custom scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+    
+    <!-- YouTube API and Video Selection Script -->
+    <script>
+        // YouTube playlist ID
+        const playlistId = 'PL79KHfFXBQXXOg_UAdkVtnz_m3zVr86QB';
+        
+        // Video modal elements
+        const videoModal = document.getElementById('videoModal');
+        const closeModal = document.getElementById('closeModal');
+        const videoList = document.getElementById('videoList');
+        const getStartedBtn = document.querySelector('.cta-button');
+        const mainYoutubeEmbed = document.querySelector('.youtube-embed iframe');
+        
+        // Global variables to store video data
+        let allVideos = [];
+        let currentVideoIndex = 0;
+        let currentUser = null;
+        let isLoadingMoreVideos = false;
+        let totalPlaylistItems = 0;
+        let nextPageToken = null;
+        let prevPageToken = null;
+        let currentPageIndex = 0;
+        let pageTokens = [''];  // First page has empty token
+        let currentVideoTime = 0; // Track current video time
+        let timeTrackingInterval = null; // Interval for tracking video time
+        let saveStateInterval = null; // Interval for periodically saving state
+        let captionsData = []; // Store captions data
+        let activeCaptionIndex = -1; // Track active caption
+        let isCaptionsVisible = false; // Track captions visibility
+        
+        // Configuration
+        const PAGE_SIZE = 50; // Zvýšené z 10 na 50 (maximálna hodnota povolená API)
+        const VISIBLE_RANGE = 15; // Zvýšené z 5 na 15 (počet videí pred a po aktuálnom videu)
+        
+        // Sample video data (will be used as fallback if API fails)
+        const sampleVideos = [
+            {
+                id: 'pVkNuqSjCyo',
+                title: 'Reverend Insanity - Chapter: 381 - 385',
+                thumbnail: 'https://i.ytimg.com/vi/pVkNuqSjCyo/hqdefault.jpg',
+                duration: '1:01:30'
+            },
+            {
+                id: 'dQw4w9WgXcQ',
+                title: 'Sample Video 2',
+                thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+                duration: '3:32'
+            },
+            {
+                id: 'H8ZH_mkfPUY',
+                title: 'Sample Video 3',
+                thumbnail: 'https://i.ytimg.com/vi/H8ZH_mkfPUY/hqdefault.jpg',
+                duration: '4:20'
+            }
+        ];
+        
+        // Listen for authentication state changes
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                // User is signed in
+                currentUser = user;
+                document.getElementById('mainContent').style.display = 'block';
+                document.getElementById('lockScreen').style.display = 'none';
+                
+                // Get user data from Firestore to ensure we have the most up-to-date display name
+                firebase.firestore().collection('users').doc(user.uid).get()
+                    .then(doc => {
+                        let displayName = user.displayName || 'User';
+                        
+                        // If we have user data in Firestore and it has a displayName field, use that
+                        if (doc.exists && doc.data().displayName) {
+                            displayName = doc.data().displayName;
+                        }
+                        
+                        // Update welcome message with user's display name
+                        const welcomeMessage = document.getElementById('welcomeMessage');
+                        if (welcomeMessage) {
+                            welcomeMessage.innerHTML = `Welcome back ${displayName}`;
+                            welcomeMessage.style.backgroundColor = '#4285f4';
+                            welcomeMessage.style.color = 'white';
+                            welcomeMessage.style.padding = '6px 12px'; /* Menší padding, rovnaký ako Logout tlačidlo */
+                            welcomeMessage.style.borderRadius = '4px';
+                            welcomeMessage.style.fontWeight = '500'; /* Stredná hrúbka písma, rovnaká ako Logout tlačidlo */
+                            welcomeMessage.style.fontSize = '0.875rem'; /* Menšia veľkosť písma, rovnaká ako Logout tlačidlo */
+                            welcomeMessage.style.textShadow = 'none';
+                            welcomeMessage.style.display = 'inline-block'; /* Aby sa bublina prispôsobila textu */
+                            welcomeMessage.style.lineHeight = '1.5'; /* Rovnaká výška riadku ako Logout tlačidlo */
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error getting user data from Firestore:", error);
+                        
+                        // Fallback to Firebase Auth user display name
+                        const welcomeMessage = document.getElementById('welcomeMessage');
+                        if (welcomeMessage) {
+                            welcomeMessage.innerHTML = `Welcome back ${user.displayName || 'User'}`;
+                            welcomeMessage.style.backgroundColor = '#4285f4';
+                            welcomeMessage.style.color = 'white';
+                            welcomeMessage.style.padding = '6px 12px'; /* Menší padding, rovnaký ako Logout tlačidlo */
+                            welcomeMessage.style.borderRadius = '4px';
+                            welcomeMessage.style.fontWeight = '500'; /* Stredná hrúbka písma, rovnaká ako Logout tlačidlo */
+                            welcomeMessage.style.fontSize = '0.875rem'; /* Menšia veľkosť písma, rovnaká ako Logout tlačidlo */
+                            welcomeMessage.style.textShadow = 'none';
+                            welcomeMessage.style.display = 'inline-block'; /* Aby sa bublina prispôsobila textu */
+                            welcomeMessage.style.lineHeight = '1.5'; /* Rovnaká výška riadku ako Logout tlačidlo */
+                        }
+                    });
+                
+                // Initialize videos and user's last watched video
+                initializePlaylist().then(() => {
+                    loadUserVideoState();
+                });
+            } else {
+                // User is signed out
+                currentUser = null;
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('lockScreen').style.display = 'flex';
+                
+                // Reset welcome message
+                const welcomeMessage = document.getElementById('welcomeMessage');
+                if (welcomeMessage) {
+                    welcomeMessage.textContent = 'My Website';
+                    welcomeMessage.style.fontWeight = '';
+                    welcomeMessage.style.backgroundColor = '';
+                    welcomeMessage.style.padding = '';
+                    welcomeMessage.style.borderRadius = '';
+                }
+            }
+        });
+        
+        // Open modal when Get Started button is clicked
+        getStartedBtn.addEventListener('click', function() {
+            videoModal.style.display = 'block';
+            
+            // Display videos around the current video
+            displayRelevantVideos();
+            
+            // Highlight the current video in the list
+            highlightCurrentVideo();
+        });
+        
+        // Close modal when X is clicked
+        closeModal.addEventListener('click', function() {
+            videoModal.style.display = 'none';
+        });
+        
+        // Close modal when clicking outside the content
+        window.addEventListener('click', function(event) {
+            if (event.target === videoModal) {
+                videoModal.style.display = 'none';
+            }
+        });
+        
+        // Add scroll event listener to load more videos when reaching the end or beginning of the list
+        videoList.addEventListener('scroll', function() {
+            if (isLoadingMoreVideos) return;
+            
+            const scrollPosition = videoList.scrollTop + videoList.clientHeight;
+            const scrollHeight = videoList.scrollHeight;
+            
+            // If scrolled to the bottom (with a 100px threshold)
+            if (scrollHeight - scrollPosition < 100) {
+                loadMoreVideos('next');
+            }
+            
+            // If scrolled to the top (with a 50px threshold)
+            if (videoList.scrollTop < 50) {
+                loadMoreVideos('prev');
+            }
+        });
+        
+        // Initialize playlist by getting the total count and first batch of videos
+        async function initializePlaylist() {
+            try {
+                console.log("Initializing playlist...");
+                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                
+                // First, get playlist info to know the total number of items
+                const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id=${playlistId}&key=${apiKey}`;
+                const infoResponse = await fetch(playlistInfoUrl);
+                const infoData = await infoResponse.json();
+                
+                if (infoData.items && infoData.items.length > 0) {
+                    totalPlaylistItems = infoData.items[0].contentDetails.itemCount;
+                    console.log(`Playlist has ${totalPlaylistItems} videos in total`);
+                }
+                
+                // Reset the video array
+                allVideos = [];
+                
+                // Then load the first batch of videos
+                currentPageIndex = 0;
+                const newVideos = await loadPlaylistVideos();
+                
+                // Načítame ešte jednu stránku videí, aby sme mali viac videí k dispozícii
+                if (nextPageToken) {
+                    console.log("Loading second page of videos for initialization");
+                    await loadPlaylistVideos(nextPageToken);
+                }
+                
+                if (allVideos.length === 0) {
+                    console.warn("Failed to load initial videos, using sample data");
+                    // Fall back to sample data if API fails
+                    allVideos = sampleVideos.map((video, index) => ({
+                        ...video, 
+                        index,
+                        position: index
+                    }));
+                }
+                
+                console.log(`Initialized playlist with ${allVideos.length} videos`);
+                return allVideos;
+            } catch (error) {
+                console.error('Error initializing playlist:', error);
+                // Fall back to sample data if API fails
+                allVideos = sampleVideos.map((video, index) => ({
+                    ...video, 
+                    index,
+                    position: index
+                }));
+                return allVideos;
+            }
+        }
+        
+        // Load videos from YouTube playlist (initial or with page token)
+        async function loadPlaylistVideos(pageToken = null) {
+            try {
+                isLoadingMoreVideos = true;
+                
+                // Use the YouTube Data API with the provided API key
+                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                
+                // Zvýšime počet videí na stránku
+                const pageSize = 50; // Maximálna hodnota povolená API
+                
+                let apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=${pageSize}&playlistId=${playlistId}&key=${apiKey}`;
+                
+                if (pageToken) {
+                    apiUrl += `&pageToken=${pageToken}`;
+                }
+                
+                console.log(`Loading playlist videos with token: ${pageToken || 'none'}`);
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                // Save page tokens for pagination
+                nextPageToken = data.nextPageToken || null;
+                prevPageToken = data.prevPageToken || null;
+                
+                // Store the tokens for navigation
+                if (pageToken && !pageTokens.includes(pageToken)) {
+                    if (pageToken === nextPageToken) {
+                        pageTokens.push(pageToken);
+                        currentPageIndex++;
+                    } else if (pageToken === prevPageToken) {
+                        pageTokens.unshift(pageToken);
+                        currentPageIndex = 0;
+                    }
+                }
+                
+                // Get video durations (requires additional API call)
+                const videoIds = data.items.map(item => item.snippet.resourceId.videoId).join(',');
+                const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${apiKey}`;
+                
+                const videosResponse = await fetch(videosUrl);
+                const videosData = await videosResponse.json();
+                
+                // Create a map of video durations
+                const durationMap = {};
+                videosData.items.forEach(item => {
+                    durationMap[item.id] = formatDuration(item.contentDetails.duration);
+                });
+                
+                // Create video objects
+                const newVideos = data.items.map((item, index) => {
+                    const videoId = item.snippet.resourceId.videoId;
+                    return {
+                        id: videoId,
+                        title: item.snippet.title,
+                        thumbnail: item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 
+                                  (item.snippet.thumbnails.default ? item.snippet.thumbnails.default.url : ''),
+                        duration: durationMap[videoId] || '0:00',
+                        position: parseInt(item.snippet.position), // Original position in playlist as number
+                        pageIndex: currentPageIndex
+                    };
+                });
+                
+                console.log(`Loaded ${newVideos.length} videos from API`);
+                
+                // Check if we already have any of these videos (by position)
+                const existingPositions = allVideos.map(v => v.position);
+                const uniqueNewVideos = newVideos.filter(v => !existingPositions.includes(v.position));
+                
+                // Add new videos to the array
+                if (uniqueNewVideos.length > 0) {
+                    console.log(`Adding ${uniqueNewVideos.length} unique new videos to the list`);
+                    
+                    // Combine arrays and sort by position
+                    allVideos = [...allVideos, ...uniqueNewVideos].sort((a, b) => a.position - b.position);
+                    
+                    // Update indices based on sorted positions
+                    allVideos.forEach((video, idx) => {
+                        video.index = idx;
+                    });
+                    
+                    // Update currentVideoIndex to point to the same video
+                    if (currentVideoIndex >= 0 && currentVideoIndex < allVideos.length) {
+                        const currentVideoId = allVideos[currentVideoIndex].id;
+                        currentVideoIndex = allVideos.findIndex(v => v.id === currentVideoId);
+                    }
+                } else {
+                    console.log('No new unique videos found');
+                }
+                
+                isLoadingMoreVideos = false;
+                return uniqueNewVideos;
+            } catch (error) {
+                console.error('Error fetching playlist:', error);
+                isLoadingMoreVideos = false;
+                return [];
+            }
+        }
+        
+        // Load more videos when scrolling to the end or beginning
+        async function loadMoreVideos(direction = 'next') {
+            if (isLoadingMoreVideos) return;
+            
+            console.log(`Loading more videos in direction: ${direction}`);
+            
+            // Zobrazíme správu o načítavaní
+            const loadingMessage = document.createElement('div');
+            loadingMessage.textContent = `Loading ${direction === 'next' ? 'next' : 'previous'} videos...`;
+            loadingMessage.style.color = 'white';
+            loadingMessage.style.padding = '20px';
+            loadingMessage.style.textAlign = 'center';
+            loadingMessage.id = 'loadingMoreMessage';
+            
+            // Pridáme správu na začiatok alebo koniec zoznamu
+            if (direction === 'next') {
+                videoList.appendChild(loadingMessage);
+            } else {
+                videoList.insertBefore(loadingMessage, videoList.firstChild);
+            }
+            
+            try {
+                isLoadingMoreVideos = true;
+                
+                // Get the current range of loaded positions
+                const loadedPositions = allVideos.map(v => v.position);
+                const minLoadedPosition = Math.min(...loadedPositions);
+                const maxLoadedPosition = Math.max(...loadedPositions);
+                
+                let success = false;
+                
+                if (direction === 'next' && nextPageToken) {
+                    // Load videos after the current maximum position
+                    console.log(`Loading videos after position ${maxLoadedPosition}`);
+                    
+                    // Načítame ďalšiu stránku videí
+                    const newVideos = await loadPlaylistVideos(nextPageToken);
+                    success = newVideos.length > 0;
+                    
+                } else if (direction === 'prev' && prevPageToken) {
+                    // Load videos before the current minimum position
+                    console.log(`Loading videos before position ${minLoadedPosition}`);
+                    
+                    // Načítame predchádzajúcu stránku videí
+                    const newVideos = await loadPlaylistVideos(prevPageToken);
+                    success = newVideos.length > 0;
+                    
+                } else {
+                    console.log(`Cannot load more videos in direction ${direction}: no page token available`);
+                }
+                
+                // Odstránime správu o načítavaní
+                const messageElement = document.getElementById('loadingMoreMessage');
+                if (messageElement) {
+                    messageElement.remove();
+                }
+                
+                // Ak sme úspešne načítali nové videá, obnovíme zoznam
+                if (success && videoModal.style.display === 'block') {
+                    // Refresh the entire list to ensure correct order
+                    await displayRelevantVideos();
+                }
+                
+                isLoadingMoreVideos = false;
+            } catch (error) {
+                console.error(`Error loading more videos in direction ${direction}:`, error);
+                
+                // Odstránime správu o načítavaní aj v prípade chyby
+                const messageElement = document.getElementById('loadingMoreMessage');
+                if (messageElement) {
+                    messageElement.remove();
+                }
+                
+                isLoadingMoreVideos = false;
+            }
+        }
+        
+        // Display videos relevant to the current video
+        async function displayRelevantVideos() {
+            // Clear the current list
+            videoList.innerHTML = '';
+            
+            // Zobrazíme správu o načítavaní
+            const loadingMessage = document.createElement('div');
+            loadingMessage.textContent = 'Loading videos...';
+            loadingMessage.style.color = 'white';
+            loadingMessage.style.padding = '20px';
+            loadingMessage.style.textAlign = 'center';
+            videoList.appendChild(loadingMessage);
+            
+            if (allVideos.length === 0) {
+                console.log("No videos loaded, attempting to load initial videos");
+                await initializePlaylist();
+                if (allVideos.length === 0) {
+                    videoList.innerHTML = '<div style="color: white; padding: 20px; text-align: center;">Failed to load videos. Please try again later.</div>';
+                    return;
+                }
+            }
+            
+            // Get the position of the current video
+            if (currentVideoIndex < 0 || currentVideoIndex >= allVideos.length) {
+                console.warn(`Invalid currentVideoIndex: ${currentVideoIndex}, resetting to 0`);
+                currentVideoIndex = 0;
+            }
+            
+            const currentPosition = allVideos[currentVideoIndex].position;
+            console.log(`Current video position: ${currentPosition}, index: ${currentVideoIndex}`);
+            
+            // Calculate the range of positions to display
+            // Zvýšime rozsah zobrazovaných videí na 15 pred a 15 po aktuálnom videu
+            const DISPLAY_RANGE = 15; // Zvýšený rozsah zobrazovaných videí
+            const startPosition = Math.max(0, currentPosition - DISPLAY_RANGE);
+            const endPosition = Math.min(totalPlaylistItems - 1, currentPosition + DISPLAY_RANGE);
+            console.log(`Displaying videos from position ${startPosition} to ${endPosition}`);
+            
+            // Check if we have videos in this range
+            const loadedPositions = allVideos.map(v => v.position);
+            const minLoadedPosition = Math.min(...loadedPositions);
+            const maxLoadedPosition = Math.max(...loadedPositions);
+            
+            console.log(`Currently loaded videos range: ${minLoadedPosition} - ${maxLoadedPosition}`);
+            
+            // If we don't have enough videos in the range, try to load more
+            let needToLoadMore = false;
+            
+            // Check if we need to load videos before our current range
+            if (minLoadedPosition > startPosition) {
+                needToLoadMore = true;
+            }
+            
+            // Check if we need to load videos after our current range
+            if (maxLoadedPosition < endPosition) {
+                needToLoadMore = true;
+            }
+            
+            // Check if we have gaps in our loaded positions
+            for (let pos = startPosition; pos <= endPosition; pos++) {
+                if (!loadedPositions.includes(pos)) {
+                    needToLoadMore = true;
+                    break;
+                }
+            }
+            
+            if (needToLoadMore) {
+                console.log("Need to load more videos to cover the range");
+                
+                // Try to load videos at the current position to get a better range
+                const success = await loadVideosAtPosition(currentPosition);
+                
+                if (!success) {
+                    console.warn("Failed to load videos at position, using what we have");
+                }
+            }
+            
+            // Clear the loading message
+            videoList.innerHTML = '';
+            
+            // Get all loaded videos and sort them by position
+            const allLoadedVideos = [...allVideos].sort((a, b) => a.position - b.position);
+            
+            // Display all loaded videos instead of just the visible range
+            // This ensures that users can scroll through all loaded videos
+            console.log(`Displaying all ${allLoadedVideos.length} loaded videos`);
+            displayVideos(allLoadedVideos);
+            
+            // Highlight the current video
+            highlightCurrentVideo();
+            
+            // Scroll to the current video
+            const currentVideoElement = videoList.querySelector(`.video-item[data-video-id="${allVideos[currentVideoIndex].id}"]`);
+            if (currentVideoElement) {
+                currentVideoElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }
+        
+        // Format ISO 8601 duration to readable format (PT1H30M15S -> 1:30:15)
+        function formatDuration(isoDuration) {
+            const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+            if (!match) return '0:00';
+            
+            const hours = match[1] ? parseInt(match[1]) : 0;
+            const minutes = match[2] ? parseInt(match[2]) : 0;
+            const seconds = match[3] ? parseInt(match[3]) : 0;
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+        
+        // Load user's last watched video from Firestore
+        async function loadUserVideoState() {
+            if (!currentUser) return;
+            
+            try {
+                console.log("Loading user video state...");
+                const userDoc = await firebase.firestore().collection('users').doc(currentUser.uid).get();
+                
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    console.log("User data from Firestore:", userData);
+                    
+                    if (userData.lastWatchedVideo) {
+                        // Find the video in our list
+                        const videoIndex = allVideos.findIndex(v => v.id === userData.lastWatchedVideo);
+                        
+                        if (videoIndex !== -1) {
+                            currentVideoIndex = videoIndex;
+                            
+                            // Check for timestamp in different possible field names
+                            let timestamp = '';
+                            if (userData.lastVideoTimestamp !== undefined) {
+                                timestamp = `&start=${userData.lastVideoTimestamp}`;
+                                console.log(`Found timestamp in lastVideoTimestamp: ${userData.lastVideoTimestamp}`);
+                            } else if (userData.timestamp !== undefined) {
+                                timestamp = `&start=${userData.timestamp}`;
+                                console.log(`Found timestamp in timestamp: ${userData.timestamp}`);
+                            }
+                            
+                            // Set video with timestamp if available
+                            mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[currentVideoIndex].id}?enablejsapi=1${timestamp}&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                            console.log(`Restored last watched video: ${allVideos[currentVideoIndex].title}${timestamp ? ` at timestamp: ${timestamp.replace('&start=', '')}` : ''}`);
+                            return;
+                        } else {
+                            // If the video is not in our loaded list, we need to find its position
+                            // and load more videos until we find it
+                            if (userData.videoPosition !== undefined) {
+                                // We know the position, so we can load videos around it
+                                console.log(`Trying to load videos at position ${userData.videoPosition}`);
+                                const success = await loadVideosAtPosition(userData.videoPosition);
+                                
+                                if (success) {
+                                    // Try to find the video again
+                                    const newIndex = allVideos.findIndex(v => v.id === userData.lastWatchedVideo);
+                                    if (newIndex !== -1) {
+                                        currentVideoIndex = newIndex;
+                                        
+                                        // Check for timestamp in different possible field names
+                                        let timestamp = '';
+                                        if (userData.lastVideoTimestamp !== undefined) {
+                                            timestamp = `&start=${userData.lastVideoTimestamp}`;
+                                            console.log(`Found timestamp in lastVideoTimestamp: ${userData.lastVideoTimestamp}`);
+                                        } else if (userData.timestamp !== undefined) {
+                                            timestamp = `&start=${userData.timestamp}`;
+                                            console.log(`Found timestamp in timestamp: ${userData.timestamp}`);
+                                        }
+                                        
+                                        // Set video with timestamp if available
+                                        mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[currentVideoIndex].id}?enablejsapi=1${timestamp}&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                                        console.log(`Restored last watched video after loading: ${allVideos[currentVideoIndex].title}${timestamp ? ` at timestamp: ${timestamp.replace('&start=', '')}` : ''}`);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // If no last watched video or not found, just set the first video without playing
+                if (allVideos.length > 0) {
+                    currentVideoIndex = 0;
+                    mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[0].id}?enablejsapi=1&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                    console.log(`Set first video: ${allVideos[0].title}`);
+                }
+            } catch (error) {
+                console.error('Error loading user video state:', error);
+                // Set first video as fallback without playing
+                if (allVideos.length > 0) {
+                    currentVideoIndex = 0;
+                    mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[0].id}?enablejsapi=1&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                }
+            }
+        }
+        
+        // Load videos around a specific position in the playlist
+        async function loadVideosAroundPosition(position) {
+            // YouTube API doesn't support startIndex parameter, so we'll use a different approach
+            console.log(`Loading videos around position ${position}`);
+            return await loadVideosAtPosition(position);
+        }
+        
+        // Alternative method to load videos at a specific position
+        async function loadVideosAtPosition(position) {
+            try {
+                console.log(`Attempting to load videos at position ${position}`);
+                isLoadingMoreVideos = true;
+                
+                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                
+                // Jednoduchší prístup - načítame niekoľko stránok postupne
+                // a hľadáme video s požadovanou pozíciou
+                
+                // Najprv získame informácie o playliste
+                const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id=${playlistId}&key=${apiKey}`;
+                const infoResponse = await fetch(playlistInfoUrl);
+                const infoData = await infoResponse.json();
+                
+                if (infoData.items && infoData.items.length > 0) {
+                    totalPlaylistItems = infoData.items[0].contentDetails.itemCount;
+                }
+                
+                // Odhadneme, na ktorej stránke by sa mohlo nachádzať naše video
+                const estimatedPageIndex = Math.floor(position / PAGE_SIZE);
+                console.log(`Estimated page index for position ${position}: ${estimatedPageIndex}`);
+                
+                // Začneme načítavať od začiatku
+                let currentToken = '';
+                let currentPage = 0;
+                let foundPosition = false;
+                let collectedVideos = [];
+                
+                // Načítame maximálne 20 stránok (zvýšené z 10)
+                const maxPages = 20;
+                
+                // Zvýšime počet videí na stránku
+                const pageSize = 50; // Maximálna hodnota povolená API
+                
+                while (currentPage < maxPages) {
+                    let apiUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=${pageSize}&playlistId=${playlistId}&key=${apiKey}`;
+                    
+                    if (currentToken) {
+                        apiUrl += `&pageToken=${currentToken}`;
+                    }
+                    
+                    try {
+                        console.log(`Loading page ${currentPage} with token: ${currentToken || 'none'}`);
+                        const response = await fetch(apiUrl);
+                        const data = await response.json();
+                        
+                        if (!data.items || data.items.length === 0) {
+                            console.log('No items returned from API');
+                            break;
+                        }
+                        
+                        // Get video durations
+                        const videoIds = data.items.map(item => item.snippet.resourceId.videoId).join(',');
+                        const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${apiKey}`;
+                        
+                        const videosResponse = await fetch(videosUrl);
+                        const videosData = await videosResponse.json();
+                        
+                        // Create a map of video durations
+                        const durationMap = {};
+                        videosData.items.forEach(item => {
+                            durationMap[item.id] = formatDuration(item.contentDetails.duration);
+                        });
+                        
+                        // Create video objects
+                        const pageVideos = data.items.map((item) => {
+                            const videoId = item.snippet.resourceId.videoId;
+                            const videoPosition = parseInt(item.snippet.position);
+                            
+                            return {
+                                id: videoId,
+                                title: item.snippet.title,
+                                thumbnail: item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : 
+                                          (item.snippet.thumbnails.default ? item.snippet.thumbnails.default.url : ''),
+                                duration: durationMap[videoId] || '0:00',
+                                position: videoPosition
+                            };
+                        });
+                        
+                        // Pridáme videá do nášho zoznamu
+                        collectedVideos = [...collectedVideos, ...pageVideos];
+                        
+                        // Skontrolujeme, či sme našli video s požadovanou pozíciou
+                        // Zvýšime rozsah hľadania na 20 (namiesto VISIBLE_RANGE)
+                        const searchRange = 20;
+                        if (pageVideos.some(v => Math.abs(v.position - position) <= searchRange)) {
+                            console.log(`Found videos near position ${position} on page ${currentPage}`);
+                            foundPosition = true;
+                            
+                            // Načítame ešte dve stránky navyše, aby sme mali dostatok videí
+                            if (data.nextPageToken) {
+                                currentToken = data.nextPageToken;
+                                // Pokračujeme v cykle, ale nezvyšujeme currentPage,
+                                // aby sme načítali ešte ďalšie stránky
+                                continue;
+                            } else {
+                                break;
+                            }
+                        }
+                        
+                        // Aktualizujeme tokeny pre stránkovanie
+                        currentToken = data.nextPageToken;
+                        nextPageToken = data.nextPageToken || null;
+                        prevPageToken = data.prevPageToken || null;
+                        
+                        // Ak nemáme ďalšiu stránku, končíme
+                        if (!currentToken) {
+                            console.log('No more pages available');
+                            break;
+                        }
+                        
+                        currentPage++;
+                        
+                        // Pridáme malé oneskorenie, aby sme predišli rate limitingu
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        
+                    } catch (error) {
+                        console.error(`Error loading page ${currentPage}:`, error);
+                        break;
+                    }
+                }
+                
+                // Ak sme nenašli žiadne videá, vrátime false
+                if (collectedVideos.length === 0) {
+                    console.log('No videos found');
+                    isLoadingMoreVideos = false;
+                    return false;
+                }
+                
+                // Odstránime duplicity
+                const uniquePositions = new Set();
+                const uniqueVideos = [];
+                
+                for (const video of collectedVideos) {
+                    if (!uniquePositions.has(video.position)) {
+                        uniquePositions.add(video.position);
+                        uniqueVideos.push(video);
+                    }
+                }
+                
+                console.log(`Collected ${uniqueVideos.length} unique videos`);
+                
+                // Aktualizujeme allVideos s našimi zozbieranými videami
+                // Ale zachováme existujúce videá, ktoré sme už mali
+                const existingPositions = allVideos.map(v => v.position);
+                const newVideos = uniqueVideos.filter(v => !existingPositions.includes(v.position));
+                
+                if (newVideos.length > 0) {
+                    allVideos = [...allVideos, ...newVideos];
+                    
+                    // Zoradíme videá podľa pozície a aktualizujeme indexy
+                    allVideos.sort((a, b) => a.position - b.position);
+                    allVideos.forEach((video, idx) => {
+                        video.index = idx;
+                    });
+                    
+                    console.log(`Added ${newVideos.length} new videos to the list`);
+                } else {
+                    console.log('No new videos found');
+                }
+                
+                console.log(`Total videos: ${allVideos.length}, position range: ${Math.min(...allVideos.map(v => v.position))} - ${Math.max(...allVideos.map(v => v.position))}`);
+                
+                isLoadingMoreVideos = false;
+                return true;
+            } catch (error) {
+                console.error('Error in loadVideosAtPosition:', error);
+                isLoadingMoreVideos = false;
+                return false;
+            }
+        }
+        
+        // Save user's current video to Firestore
+        async function saveUserVideoState(videoId, timestamp = null) {
+            if (!currentUser) return;
+            
+            try {
+                // Find the video position
+                const videoIndex = allVideos.findIndex(v => v.id === videoId);
+                const videoPosition = videoIndex !== -1 ? allVideos[videoIndex].position : undefined;
+                
+                const userData = {
+                    lastWatchedVideo: videoId,
+                    videoPosition: videoPosition,
+                    lastWatched: firebase.firestore.FieldValue.serverTimestamp(),
+                    email: currentUser.email,
+                    displayName: currentUser.displayName,
+                    photoURL: currentUser.photoURL
+                };
+                
+                // Add timestamp if provided
+                if (timestamp !== null) {
+                    userData.lastVideoTimestamp = timestamp;
+                }
+                
+                await firebase.firestore().collection('users').doc(currentUser.uid).set(userData, { merge: true });
+                
+                console.log('User video state saved' + (timestamp !== null ? ` with timestamp: ${timestamp}` : ''));
+            } catch (error) {
+                console.error('Error saving user video state:', error);
+            }
+        }
+        
+        // Play a specific video
+        function playVideo(videoId) {
+            console.log(`Playing video: ${videoId}`);
+            
+            // Update the iframe src with autoplay and enable JS API for events
+            // Also enable closed captions
+            mainYoutubeEmbed.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+            
+            // Find and update current video index
+            const videoIndex = allVideos.findIndex(v => v.id === videoId);
+            if (videoIndex !== -1) {
+                currentVideoIndex = videoIndex;
+                console.log(`Updated current video index to ${currentVideoIndex}, position: ${allVideos[currentVideoIndex].position}`);
+            } else {
+                console.warn(`Could not find video ${videoId} in loaded videos`);
+            }
+            
+            // Save to Firestore - ale len ak je video v našom zozname
+            if (videoIndex !== -1) {
+                // Initially save with timestamp 0 when starting a new video
+                saveUserVideoState(videoId, 0);
+            }
+            
+            // Update displayed videos and highlight if modal is open
+            if (videoModal.style.display === 'block') {
+                displayRelevantVideos();
+                highlightCurrentVideo();
+            }
+            
+            // Fetch captions for the video
+            fetchCaptions(videoId);
+        }
+        
+        // Highlight the current video in the list
+        function highlightCurrentVideo() {
+            // Remove active class from all items
+            const items = videoList.querySelectorAll('.video-item');
+            items.forEach(item => item.classList.remove('active'));
+            
+            if (currentVideoIndex < 0 || currentVideoIndex >= allVideos.length) {
+                console.warn(`Invalid currentVideoIndex: ${currentVideoIndex}`);
+                return;
+            }
+            
+            const currentVideoId = allVideos[currentVideoIndex].id;
+            console.log(`Highlighting video ID: ${currentVideoId}`);
+            
+            // Find the current video in the list by data-video-id
+            const currentItem = Array.from(items).find(
+                item => item.dataset.videoId === currentVideoId
+            );
+            
+            // Add active class to current video
+            if (currentItem) {
+                currentItem.classList.add('active');
+                console.log(`Found and highlighted video in list`);
+                
+                // Scroll to make the current video visible
+                currentItem.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            } else {
+                console.warn(`Could not find current video in displayed list`);
+            }
+        }
+        
+        // Play the next video in the playlist
+        function playNextVideo() {
+            if (allVideos.length === 0) return;
+            
+            // Get current position
+            const currentPosition = allVideos[currentVideoIndex].position;
+            console.log(`Current position: ${currentPosition}, looking for next video`);
+            
+            // Find the next video by position
+            const nextPosition = currentPosition + 1;
+            let nextVideo = allVideos.find(v => v.position === nextPosition);
+            
+            // If next video is not loaded yet, try to load more
+            if (!nextVideo) {
+                console.log(`Next video at position ${nextPosition} not found in loaded videos`);
+                
+                // Try to load videos at the next position directly
+                console.log(`Trying to load videos at position ${nextPosition} directly`);
+                
+                // Show loading indicator or message to user
+                const loadingMessage = document.createElement('div');
+                loadingMessage.textContent = `Loading next video (position ${nextPosition})...`;
+                loadingMessage.style.color = 'white';
+                loadingMessage.style.padding = '20px';
+                loadingMessage.style.textAlign = 'center';
+                loadingMessage.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                loadingMessage.style.position = 'fixed';
+                loadingMessage.style.top = '50%';
+                loadingMessage.style.left = '50%';
+                loadingMessage.style.transform = 'translate(-50%, -50%)';
+                loadingMessage.style.borderRadius = '10px';
+                loadingMessage.style.zIndex = '2000';
+                document.body.appendChild(loadingMessage);
+                
+                loadVideosAtPosition(nextPosition).then(success => {
+                    // Remove loading message
+                    document.body.removeChild(loadingMessage);
+                    
+                    if (success) {
+                        // Try to find the video again
+                        nextVideo = allVideos.find(v => v.position === nextPosition);
+                        
+                        if (nextVideo) {
+                            console.log(`Found next video after direct load: ${nextVideo.title}`);
+                            currentVideoIndex = allVideos.indexOf(nextVideo);
+                            playVideo(nextVideo.id);
+                        } else {
+                            console.log(`Could not find next video, wrapping to first`);
+                            // If still not found, wrap around to the first video
+                            const firstVideo = allVideos.reduce((prev, curr) => 
+                                prev.position < curr.position ? prev : curr
+                            );
+                            currentVideoIndex = allVideos.indexOf(firstVideo);
+                            playVideo(firstVideo.id);
+                        }
+                    } else {
+                        console.log(`Failed to load videos at position ${nextPosition}, wrapping to first`);
+                        // If loading failed, wrap around to the first video
+                        const firstVideo = allVideos.reduce((prev, curr) => 
+                            prev.position < curr.position ? prev : curr
+                        );
+                        currentVideoIndex = allVideos.indexOf(firstVideo);
+                        playVideo(firstVideo.id);
+                    }
+                }).catch(error => {
+                    // Remove loading message in case of error
+                    document.body.removeChild(loadingMessage);
+                    console.error("Error loading next video:", error);
+                    
+                    // Fallback to first video
+                    const firstVideo = allVideos.reduce((prev, curr) => 
+                        prev.position < curr.position ? prev : curr
+                    );
+                    currentVideoIndex = allVideos.indexOf(firstVideo);
+                    playVideo(firstVideo.id);
+                });
+                
+                return;
+            }
+            
+            if (nextVideo) {
+                console.log(`Found next video in already loaded videos: ${nextVideo.title}`);
+                // Update current index and play
+                currentVideoIndex = allVideos.indexOf(nextVideo);
+                playVideo(nextVideo.id);
+            } else {
+                console.log(`Could not find next video, wrapping to first`);
+                // If next video not found, wrap around to the first video
+                const firstVideo = allVideos.reduce((prev, curr) => 
+                    prev.position < curr.position ? prev : curr
+                );
+                currentVideoIndex = allVideos.indexOf(firstVideo);
+                playVideo(firstVideo.id);
+            }
+        }
+        
+        // Create a video element
+        function createVideoElement(video) {
+            const videoItem = document.createElement('div');
+            videoItem.className = 'video-item';
+            videoItem.dataset.videoId = video.id;
+            videoItem.dataset.position = video.position;
+            
+            // Add active class if this is the current video
+            if (currentVideoIndex >= 0 && currentVideoIndex < allVideos.length && 
+                video.id === allVideos[currentVideoIndex].id) {
+                videoItem.classList.add('active');
+            }
+            
+            // Make sure the position is displayed correctly (position + 1 for human-readable numbering)
+            const displayPosition = video.position + 1;
+            
+            videoItem.innerHTML = `
+                <div class="video-index">${displayPosition}</div>
+                <img src="${video.thumbnail}" alt="${video.title}" class="video-thumbnail">
+                <div class="video-info">
+                    <div class="video-title">${video.title}</div>
+                    <div class="video-duration">
+                        <span class="position-info">Position: ${displayPosition}</span> | 
+                        <span class="duration-info">${video.duration || '0:00'}</span>
+                    </div>
+                </div>
+            `;
+            
+            videoItem.addEventListener('click', function() {
+                // Play the selected video
+                playVideo(video.id);
+                
+                // Close the modal
+                videoModal.style.display = 'none';
+            });
+            
+            return videoItem;
+        }
+        
+        // Display videos in the list
+        function displayVideos(videos) {
+            videoList.innerHTML = '';
+            
+            videos.forEach(video => {
+                const videoItem = createVideoElement(video);
+                videoList.appendChild(videoItem);
+            });
+        }
+        
+        // Set up YouTube iframe API to detect when videos end
+        let tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        let firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        
+        let player;
+        
+        // YouTube API Player States
+        const YT_PLAYER_STATES = {
+            ENDED: 0,
+            PLAYING: 1,
+            PAUSED: 2,
+            BUFFERING: 3,
+            CUED: 5
+        };
+        
+        // This function is called by the YouTube API when it's ready
+        function onYouTubeIframeAPIReady() {
+            console.log("YouTube API ready");
+            player = new YT.Player(mainYoutubeEmbed, {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                },
+                playerVars: {
+                    'cc_load_policy': 1,  // Force closed captions to display
+                    'cc_lang_pref': 'en', // Set preferred language to English (or your preferred language)
+                    'hl': 'en',           // Set interface language
+                    'enablejsapi': 1      // Enable JavaScript API
+                }
+            });
+        }
+        
+        // This function is called when the player is ready
+        function onPlayerReady(event) {
+            console.log("Player ready");
+            
+            // Save the current timestamp immediately when the player is ready
+            // This helps ensure we have a timestamp saved even if the user doesn't interact with the video
+            setTimeout(() => {
+                if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
+                    const currentTime = Math.floor(player.getCurrentTime());
+                    console.log(`Saving initial timestamp: ${currentTime}`);
+                    saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
+                }
+            }, 3000); // Wait 3 seconds to ensure the player is fully loaded
+        }
+        
+        // This function is called when the player's state changes
+        function onPlayerStateChange(event) {
+            // When video is playing, update current time every second
+            if (event.data === YT_PLAYER_STATES.PLAYING) {
+                // Clear any existing interval
+                if (timeTrackingInterval) {
+                    clearInterval(timeTrackingInterval);
+                }
+                
+                // Start tracking current time
+                timeTrackingInterval = setInterval(() => {
+                    if (player && player.getCurrentTime) {
+                        currentVideoTime = Math.floor(player.getCurrentTime());
+                        updateActiveCaptions(currentVideoTime);
+                    }
+                }, 1000);
+                
+                // Set up periodic saving of video state (every 30 seconds)
+                if (saveStateInterval) {
+                    clearInterval(saveStateInterval);
+                }
+                
+                saveStateInterval = setInterval(() => {
+                    if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
+                        const currentTime = Math.floor(player.getCurrentTime());
+                        console.log(`Periodically saving timestamp: ${currentTime}`);
+                        saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
+                    }
+                }, 30000); // Save every 30 seconds
+                
+                // Hide next video button
+                const nextVideoBtn = document.getElementById('nextVideoBtn');
+                if (nextVideoBtn) {
+                    nextVideoBtn.style.display = 'none';
+                }
+            }
+            // When video is paused, clear the intervals
+            else if (event.data === YT_PLAYER_STATES.PAUSED) {
+                if (timeTrackingInterval) {
+                    clearInterval(timeTrackingInterval);
+                }
+                
+                // Save the current timestamp when paused
+                if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
+                    const currentTime = Math.floor(player.getCurrentTime());
+                    console.log(`Saving timestamp on pause: ${currentTime}`);
+                    saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
+                }
+                
+                // Clear the save state interval
+                if (saveStateInterval) {
+                    clearInterval(saveStateInterval);
+                }
+            }
+            // When video ends (state = 0), show next video button and clear intervals
+            else if (event.data === YT_PLAYER_STATES.ENDED) {
+                console.log("Video ended");
+                
+                // Clear the intervals
+                if (timeTrackingInterval) {
+                    clearInterval(timeTrackingInterval);
+                }
+                
+                if (saveStateInterval) {
+                    clearInterval(saveStateInterval);
+                }
+                
+                // Show next video button
+                const nextVideoBtn = document.getElementById('nextVideoBtn');
+                if (nextVideoBtn) {
+                    nextVideoBtn.style.display = 'block';
+                }
+            }
+        }
+
+        // Add event listener for the next video button
+        document.addEventListener('DOMContentLoaded', function() {
+            const nextVideoBtn = document.getElementById('nextVideoBtn');
+            if (nextVideoBtn) {
+                nextVideoBtn.addEventListener('click', function() {
+                    playNextVideo();
+                    // Hide button after click
+                    nextVideoBtn.style.display = 'none';
+                });
+            }
+            
+            // Add event listener for the save timestamp button inside the video player
+            const saveTimestampBtn = document.getElementById('saveTimestampBtn');
+            if (saveTimestampBtn) {
+                saveTimestampBtn.addEventListener('click', function() {
+                    if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
+                        const currentTime = Math.floor(player.getCurrentTime());
+                        console.log(`Manually saving timestamp: ${currentTime}`);
+                        saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
+                        alert(`Timestamp saved: ${currentTime} seconds`);
+                    } else {
+                        alert('Cannot save timestamp: player not ready or user not logged in');
+                    }
+                });
+            }
+            
+            // Add event listeners for page unload to save video timestamp and log out
+            window.addEventListener('beforeunload', function() {
+                // Clear the intervals
+                if (timeTrackingInterval) {
+                    clearInterval(timeTrackingInterval);
+                }
+                
+                if (saveStateInterval) {
+                    clearInterval(saveStateInterval);
+                }
+                
+                // Save current video timestamp if user is logged in and video is playing
+                if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
+                    const currentTime = Math.floor(player.getCurrentTime());
+                    console.log(`Saving timestamp before unload: ${currentTime}`);
+                    saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
+                }
+                
+                // Log out user when page is closed
+                if (currentUser) {
+                    firebase.auth().signOut();
+                }
+            });
+
+            // Pridanie toggle video funkcionality
+            const toggleVideoBtn = document.getElementById('toggleVideoBtn');
+            const youtubeEmbed = document.querySelector('.youtube-embed');
+            
+            let isVideoVisible = true;
+            
+            toggleVideoBtn.addEventListener('click', function() {
+                isVideoVisible = !isVideoVisible;
+                
+                if (isVideoVisible) {
+                    // Zobraziť video
+                    youtubeEmbed.style.display = 'block';
+                    toggleVideoBtn.querySelector('span').textContent = 'Hide Video';
+                } else {
+                    // Skryť video
+                    youtubeEmbed.style.display = 'none';
+                    toggleVideoBtn.querySelector('span').textContent = 'Show Video';
+                }
+            });
+            
+            // Add toggle captions functionality
+            const toggleCaptionsBtn = document.getElementById('toggleCaptionsBtn');
+            const captionsContainer = document.getElementById('captionsContainer');
+            
+            if (toggleCaptionsBtn) {
+                toggleCaptionsBtn.addEventListener('click', function() {
+                    isCaptionsVisible = !isCaptionsVisible;
+                    
+                    if (isCaptionsVisible) {
+                        // Show captions
+                        captionsContainer.style.display = 'block';
+                        toggleCaptionsBtn.querySelector('span').textContent = 'Hide Captions';
+                        
+                        // If we have captions data, display it
+                        if (captionsData.length > 0) {
+                            displayCaptions();
+                        } else if (allVideos[currentVideoIndex]) {
+                            // Otherwise fetch captions for current video
+                            fetchCaptions(allVideos[currentVideoIndex].id);
+                        }
+                    } else {
+                        // Hide captions
+                        captionsContainer.style.display = 'none';
+                        toggleCaptionsBtn.querySelector('span').textContent = 'Show Captions';
+                    }
+                });
+            }
+        });
+
+        // Fetch captions for a video
+        async function fetchCaptions(videoId) {
+            try {
+                console.log(`Fetching captions for video: ${videoId}`);
+                const captionsContainer = document.getElementById('captionsContainer');
+                const captionsText = document.getElementById('captionsText');
+                const captionsError = document.getElementById('captionsError');
+                
+                // Show loading message
+                if (isCaptionsVisible) {
+                    captionsText.innerHTML = 'Loading captions...';
+                    captionsContainer.style.display = 'block';
+                    captionsError.style.display = 'none';
+                }
+                
+                // Clear previous captions
+                captionsData = [];
+                
+                // NEW DIRECT METHOD: Use YouTube's direct timedtext API
+                try {
+                    // This is a direct method that should work for most videos
+                    // First, we need to find the available languages
+                    const langUrl = `https://www.youtube.com/api/timedtext?type=list&v=${videoId}`;
+                    
+                    // Use a fetch with no-cors mode to avoid CORS issues
+                    const langResponse = await fetch(langUrl, { mode: 'no-cors' })
+                        .then(() => {
+                            // If we get here, the request didn't throw an error, but we can't access the response
+                            // due to CORS. Let's try a different approach with a proxy.
+                            return fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(langUrl)}`);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching language list:', error);
+                            // Try with a proxy directly
+                            return fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(langUrl)}`);
+                        });
+                    
+                    const langText = await langResponse.text();
+                    console.log('Language response:', langText);
+                    
+                    // Parse the XML to find the language codes
+                    const langParser = new DOMParser();
+                    const langDoc = langParser.parseFromString(langText, "text/xml");
+                    const trackElements = langDoc.getElementsByTagName('track');
+                    
+                    if (trackElements.length > 0) {
+                        // Try to find English captions first
+                        let langCode = '';
+                        let langName = '';
+                        
+                        // Look for English captions first
+                        for (let i = 0; i < trackElements.length; i++) {
+                            const track = trackElements[i];
+                            const lang = track.getAttribute('lang_code');
+                            const name = track.getAttribute('name') || '';
+                            
+                            if (lang === 'en' || lang.startsWith('en-') || 
+                                name.toLowerCase().includes('english') || 
+                                (lang === 'a.en' && name.toLowerCase().includes('auto'))) {
+                                langCode = lang;
+                                langName = name;
+                                break;
+                            }
+                        }
+                        
+                        // If no English captions, use the first available
+                        if (!langCode && trackElements.length > 0) {
+                            langCode = trackElements[0].getAttribute('lang_code');
+                            langName = trackElements[0].getAttribute('name') || '';
+                        }
+                        
+                        if (langCode) {
+                            console.log(`Found captions in language: ${langName} (${langCode})`);
+                            
+                            // Now fetch the actual captions
+                            const captionUrl = `https://www.youtube.com/api/timedtext?lang=${langCode}&v=${videoId}`;
+                            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(captionUrl)}`;
+                            
+                            const captionResponse = await fetch(proxyUrl);
+                            const captionText = await captionResponse.text();
+                    
+                    // Parse the XML
+                    const parser = new DOMParser();
+                            const xmlDoc = parser.parseFromString(captionText, "text/xml");
+                    const textElements = xmlDoc.getElementsByTagName('text');
+                    
+                            if (textElements.length > 0) {
+                    // Convert to array of caption objects
+                    captionsData = [];
+                    for (let i = 0; i < textElements.length; i++) {
+                        const element = textElements[i];
+                        const start = parseFloat(element.getAttribute('start'));
+                        const dur = parseFloat(element.getAttribute('dur') || '0');
+                                    
+                                    // Replace HTML entities in the text
+                                    let text = element.textContent;
+                                    const tempDiv = document.createElement('div');
+                                    tempDiv.innerHTML = text;
+                                    text = tempDiv.textContent;
+                        
+                        captionsData.push({
+                            start,
+                            end: start + dur,
+                            text
+                        });
+                    }
+                                
+                                console.log(`Parsed ${captionsData.length} captions from direct API`);
+                                
+                                // Display captions if they're visible
+                                if (isCaptionsVisible) {
+                                    displayCaptions();
+                                }
+                                return;
+                            } else {
+                                throw new Error('No text elements found in caption XML');
+                            }
+                        } else {
+                            throw new Error('No suitable language found for captions');
+                        }
+                    } else {
+                        throw new Error('No caption tracks found');
+                    }
+                } catch (directApiError) {
+                    console.error('Error using direct YouTube API:', directApiError);
+                    // Continue to other methods
+                }
+                
+                // Try with another CORS proxy service
+                try {
+                    // This is a different CORS proxy that might work better
+                    const corsProxyUrl = `https://cors-anywhere.herokuapp.com/https://www.youtube.com/api/timedtext?lang=en&v=${videoId}`;
+                    
+                    const proxyResponse = await fetch(corsProxyUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    if (proxyResponse.ok) {
+                        const xmlText = await proxyResponse.text();
+                        console.log('Successfully fetched captions XML through CORS-Anywhere proxy');
+                        
+                        // Parse the XML
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                        const textElements = xmlDoc.getElementsByTagName('text');
+                        
+                        if (textElements.length > 0) {
+                            // Convert to array of caption objects
+                            captionsData = [];
+                            for (let i = 0; i < textElements.length; i++) {
+                                const element = textElements[i];
+                                const start = parseFloat(element.getAttribute('start'));
+                                const dur = parseFloat(element.getAttribute('dur') || '0');
+                                
+                                // Replace HTML entities in the text
+                                let text = element.textContent;
+                                const tempDiv = document.createElement('div');
+                                tempDiv.innerHTML = text;
+                                text = tempDiv.textContent;
+                                
+                                captionsData.push({
+                                    start,
+                                    end: start + dur,
+                                    text
+                                });
+                            }
+                            
+                            console.log(`Parsed ${captionsData.length} captions from CORS-Anywhere proxy`);
+                            
+                            // Display captions if they're visible
+                            if (isCaptionsVisible) {
+                                displayCaptions();
+                            }
+                            return;
+                        } else {
+                            throw new Error('No text elements found in XML from CORS-Anywhere');
+                        }
+                    } else {
+                        throw new Error(`CORS-Anywhere proxy response not OK: ${proxyResponse.status}`);
+                    }
+                } catch (corsAnywhereError) {
+                    console.error('Error fetching captions through CORS-Anywhere proxy:', corsAnywhereError);
+                    // Continue to next fallback method
+                }
+                
+                // Try using a different third-party API service
+                try {
+                    // This is a different service that provides YouTube transcripts
+                    const apiUrl = `https://subtitles-for-youtube.p.rapidapi.com/subtitles/${videoId}?lang=en`;
+                    
+                    const apiResponse = await fetch(apiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'X-RapidAPI-Key': '3c2d2a7e6fmsh4b1e7a9aec40d9dp1e9d6bjsn3d34bd5a0b0d',
+                            'X-RapidAPI-Host': 'subtitles-for-youtube.p.rapidapi.com'
+                        }
+                    });
+                    
+                    if (apiResponse.ok) {
+                        const data = await apiResponse.json();
+                        console.log('Successfully fetched captions from RapidAPI service');
+                        
+                        if (data && data.length > 0) {
+                            // Convert to our caption format
+                            captionsData = data.map(item => ({
+                                start: item.start,
+                                end: item.start + item.duration,
+                                text: item.text
+                            }));
+                            
+                            console.log(`Parsed ${captionsData.length} captions from RapidAPI service`);
+                            
+                            // Display captions if they're visible
+                            if (isCaptionsVisible) {
+                                displayCaptions();
+                            }
+                            return;
+                        } else {
+                            throw new Error('No captions found in RapidAPI response');
+                        }
+                    } else {
+                        throw new Error(`RapidAPI response not OK: ${apiResponse.status}`);
+                    }
+                } catch (rapidApiError) {
+                    console.error('Error fetching captions from RapidAPI:', rapidApiError);
+                    // Continue to next fallback method
+                }
+                
+                // Try using YouTube's oEmbed API and a caption extraction service
+                try {
+                    // First get video information using oEmbed
+                    const oEmbedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+                    const oEmbedResponse = await fetch(oEmbedUrl);
+                    
+                    if (oEmbedResponse.ok) {
+                        const oEmbedData = await oEmbedResponse.json();
+                        console.log('Successfully fetched video info from oEmbed API:', oEmbedData);
+                        
+                        // Now try to get captions using a different service
+                        const captionServiceUrl = `https://caption-extractor.vercel.app/api/youtube?videoId=${videoId}`;
+                        
+                        const serviceResponse = await fetch(captionServiceUrl);
+                        if (serviceResponse.ok) {
+                            const serviceData = await serviceResponse.json();
+                            console.log('Successfully fetched captions from caption extractor service');
+                            
+                            if (serviceData && serviceData.captions && serviceData.captions.length > 0) {
+                                // Convert to our caption format
+                                captionsData = serviceData.captions.map(item => ({
+                                    start: item.start,
+                                    end: item.end,
+                                    text: item.text
+                                }));
+                                
+                                console.log(`Parsed ${captionsData.length} captions from caption extractor service`);
+                                
+                                // Display captions if they're visible
+                                if (isCaptionsVisible) {
+                                    displayCaptions();
+                                }
+                                return;
+                            }
+                        }
+                        
+                        throw new Error('Could not extract captions from caption service');
+                    } else {
+                        throw new Error(`oEmbed response not OK: ${oEmbedResponse.status}`);
+                    }
+                } catch (oEmbedError) {
+                    console.error('Error using oEmbed approach:', oEmbedError);
+                    // Continue to next fallback method
+                }
+                
+                // Try using YouTube's Data API directly
+                try {
+                    const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
+                    
+                    // Get video details to check if captions are available
+                    const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${apiKey}`;
+                    const videoDetailsResponse = await fetch(videoDetailsUrl);
+                    const videoDetailsData = await videoDetailsResponse.json();
+                    
+                    console.log('Video details from API:', videoDetailsData);
+                    
+                    if (videoDetailsData.items && videoDetailsData.items.length > 0) {
+                        const hasCaptions = videoDetailsData.items[0].contentDetails.caption === 'true';
+                        console.log(`Video has captions according to API: ${hasCaptions}`);
+                        
+                        if (hasCaptions) {
+                            // Since we can't directly access captions through the API without OAuth,
+                            // we'll use our fallback method to track captions as they appear
+                            setupCaptionTracking();
+                            
+                            // Show a message to the user
+                            if (isCaptionsVisible) {
+                                captionsText.innerHTML = `
+                                    <div style="text-align: center; padding: 20px;">
+                                        <p>Captions are available for this video.</p>
+                                        <p>Play the video to see captions appear here as they are displayed in the video.</p>
+                                        <p>Note: For technical reasons, captions will be collected as the video plays.</p>
+                                    </div>
+                                `;
+                            }
+                            return;
+                        }
+                    }
+                    
+                    throw new Error('Could not get captions using YouTube Data API');
+                } catch (dataApiError) {
+                    console.error('Error using YouTube Data API:', dataApiError);
+                    // Continue to next fallback method
+                }
+                
+                // Try to fetch captions directly from a third-party service
+                try {
+                    // This service provides YouTube transcripts without CORS issues
+                    const response = await fetch(`https://yt-subtitle-scraper.vercel.app/api/subtitles?videoId=${videoId}`);
+                    const data = await response.json();
+                    
+                    if (data && data.subtitles && data.subtitles.length > 0) {
+                        console.log('Successfully fetched captions from third-party service');
+                        
+                        // Convert to our caption format
+                        captionsData = data.subtitles.map(caption => ({
+                            start: parseFloat(caption.start),
+                            end: parseFloat(caption.start) + parseFloat(caption.duration),
+                            text: caption.text
+                        }));
+                    
+                    console.log(`Parsed ${captionsData.length} captions`);
+                    
+                    // Display captions if they're visible
+                    if (isCaptionsVisible) {
+                        displayCaptions();
+                    }
+                        return;
+                } else {
+                        throw new Error('No captions found in response');
+                    }
+                } catch (directError) {
+                    console.error('Error fetching captions directly:', directError);
+                    // Continue to fallback methods
+                }
+                
+                // Try another service with CORS proxy
+                try {
+                    // Use a CORS proxy to access YouTube's transcript API
+                    const corsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/api/timedtext?lang=en&v=${videoId}`)}`;
+                    const proxyResponse = await fetch(corsProxyUrl);
+                    
+                    if (proxyResponse.ok) {
+                        const xmlText = await proxyResponse.text();
+                        console.log('Successfully fetched captions XML through CORS proxy');
+                        
+                        // Parse the XML
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+                        const textElements = xmlDoc.getElementsByTagName('text');
+                        
+                        if (textElements.length > 0) {
+                            // Convert to array of caption objects
+                            captionsData = [];
+                            for (let i = 0; i < textElements.length; i++) {
+                                const element = textElements[i];
+                                const start = parseFloat(element.getAttribute('start'));
+                                const dur = parseFloat(element.getAttribute('dur') || '0');
+                                const text = element.textContent;
+                                
+                                captionsData.push({
+                                    start,
+                                    end: start + dur,
+                                    text
+                                });
+                            }
+                            
+                            console.log(`Parsed ${captionsData.length} captions from XML`);
+                            
+                            // Display captions if they're visible
+                    if (isCaptionsVisible) {
+                                displayCaptions();
+                            }
+                            return;
+                        } else {
+                            throw new Error('No text elements found in XML');
+                        }
+                    } else {
+                        throw new Error(`CORS proxy response not OK: ${proxyResponse.status}`);
+                    }
+                } catch (proxyError) {
+                    console.error('Error fetching captions through CORS proxy:', proxyError);
+                    // Continue to next fallback method
+                }
+                
+                // Try yet another approach - using a different API endpoint
+                try {
+                    // This endpoint sometimes works better for certain videos
+                    const altCorsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/api/timedtext?lang=en&fmt=json3&v=${videoId}`)}`;
+                    const altProxyResponse = await fetch(altCorsProxyUrl);
+                    
+                    if (altProxyResponse.ok) {
+                        const jsonText = await altProxyResponse.text();
+                        
+                        // Try to parse as JSON
+                        try {
+                            const jsonData = JSON.parse(jsonText);
+                            console.log('Successfully fetched captions JSON through CORS proxy');
+                            
+                            if (jsonData && jsonData.events) {
+                                // Convert to our caption format
+                    captionsData = [];
+                                
+                                jsonData.events.forEach(event => {
+                                    if (event.segs && event.tStartMs !== undefined) {
+                                        const start = event.tStartMs / 1000; // Convert to seconds
+                                        const duration = (event.dDurationMs || 5000) / 1000; // Convert to seconds, default 5s
+                                        
+                                        // Combine all segments into one text
+                                        let text = '';
+                                        event.segs.forEach(seg => {
+                                            if (seg.utf8) {
+                                                text += seg.utf8;
+                                            }
+                                        });
+                                        
+                                        if (text.trim()) {
+                                            captionsData.push({
+                                                start,
+                                                end: start + duration,
+                                                text: text.trim()
+                                            });
+                                        }
+                                    }
+                                });
+                                
+                                console.log(`Parsed ${captionsData.length} captions from JSON`);
+                                
+                                // Display captions if they're visible
+                                if (isCaptionsVisible && captionsData.length > 0) {
+                                    displayCaptions();
+                                    return;
+                                }
+                            }
+                            
+                            // If we got here, we didn't find usable captions
+                            throw new Error('No usable captions found in JSON response');
+                        } catch (jsonParseError) {
+                            console.error('Error parsing JSON captions:', jsonParseError);
+                            throw new Error('Failed to parse JSON captions');
+                        }
+                    } else {
+                        throw new Error(`Alt CORS proxy response not OK: ${altProxyResponse.status}`);
+                    }
+                } catch (altProxyError) {
+                    console.error('Error fetching captions through alt CORS proxy:', altProxyError);
+                    // Continue to next fallback method
+                }
+                
+                // Fallback to YouTube Data API
+                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
+                
+                // First, get the caption tracks available for this video
+                const captionTracksUrl = `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`;
+                
+                try {
+                    const response = await fetch(captionTracksUrl);
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        console.error('YouTube API error:', data.error);
+                        throw new Error('Failed to fetch caption tracks');
+                    }
+                    
+                    if (!data.items || data.items.length === 0) {
+                        console.log('No caption tracks available for this video');
+                        if (isCaptionsVisible) {
+                            captionsText.innerHTML = 'No captions available for this video.';
+                        }
+                        return;
+                    }
+                    
+                    console.log('Caption tracks:', data.items);
+                    
+                    // Since we can't directly access the caption content through the API (requires OAuth),
+                    // we'll use a different approach - we'll fetch the transcript from a public API
+                    
+                    // Use a proxy service to get the transcript
+                    const transcriptUrl = `https://youtubetranscript.com/?server_vid=${videoId}`;
+                    
+                    const transcriptResponse = await fetch(transcriptUrl);
+                    const transcriptData = await transcriptResponse.text();
+                    
+                    // Parse the transcript data (it's in a specific format)
+                    try {
+                        // The response is usually a JSON string inside a JavaScript variable
+                        const jsonMatch = transcriptData.match(/var\s+json\s*=\s*(\{.*?\});/s);
+                        
+                        if (jsonMatch && jsonMatch[1]) {
+                            const parsedData = JSON.parse(jsonMatch[1]);
+                            
+                            if (parsedData && parsedData.captions) {
+                                // Convert to our caption format
+                                captionsData = parsedData.captions.map(caption => ({
+                                    start: parseFloat(caption.start),
+                                    end: parseFloat(caption.start) + parseFloat(caption.duration),
+                                    text: caption.text
+                                }));
+                                
+                                console.log(`Parsed ${captionsData.length} captions`);
+                                
+                                // Display captions if they're visible
+                                if (isCaptionsVisible) {
+                                    displayCaptions();
+                                }
+                                return;
+                            }
+                        }
+                        
+                        // If we couldn't parse the transcript, fall back to our backup method
+                        throw new Error('Could not parse transcript data');
+                    } catch (transcriptError) {
+                        console.error('Error parsing transcript:', transcriptError);
+                        
+                        // Fall back to our backup method - use the YouTube player's captions
+                        console.log('Falling back to YouTube player captions');
+                        setupCaptionTracking();
+                        
+                        // Show a message to the user
+                        if (isCaptionsVisible) {
+                            captionsText.innerHTML = `
+                                <div style="text-align: center; padding: 20px;">
+                                    <p>Captions are now enabled in the video player.</p>
+                                    <p>Play the video to see captions appear here as they are displayed in the video.</p>
+                                    <p>Note: For technical reasons, captions will be collected as the video plays.</p>
+                                </div>
+                            `;
+                        }
+                    }
+                } catch (apiError) {
+                    console.error('Error fetching captions from API:', apiError);
+                    
+                    // Fall back to our backup method - use the YouTube player's captions
+                    console.log('Falling back to YouTube player captions');
+                    setupCaptionTracking();
+                    
+                    // Show a message to the user
+                    if (isCaptionsVisible) {
+                        captionsText.innerHTML = `
+                            <div style="text-align: center; padding: 20px;">
+                                <p>Captions are now enabled in the video player.</p>
+                                <p>Play the video to see captions appear here as they are displayed in the video.</p>
+                                <p>Note: For technical reasons, captions will be collected as the video plays.</p>
+                            </div>
+                        `;
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error in fetchCaptions:', error);
+                const captionsText = document.getElementById('captionsText');
+                const captionsError = document.getElementById('captionsError');
+                
+                if (isCaptionsVisible) {
+                    captionsText.innerHTML = '';
+                    captionsError.textContent = 'Error loading captions. Please try again later.';
+                    captionsError.style.display = 'block';
+                }
+                captionsData = [];
+            }
+        }
+        
+        // Set up tracking of captions as they appear in the video
+        function setupCaptionTracking() {
+            // First, make sure captions are enabled in the player
+            if (player && player.getOptions) {
+                try {
+                    // Try to enable captions in the player
+                    player.loadModule('captions');
+                    player.setOption('captions', 'track', {'languageCode': 'en'});
+                    player.setOption('captions', 'reload', true);
+                    player.setOption('captions', 'fontSize', 1);
+                    player.setOption('captions', 'displaySettings', {'background': '#000000CC'});
+                } catch (e) {
+                    console.error('Error setting up captions in player:', e);
+                }
+            }
+            
+            // Fall back to our interval-based approach
+            setupIntervalBasedCaptionTracking();
+        }
+        
+        // Fallback method using intervals to check for captions
+        function setupIntervalBasedCaptionTracking() {
+            console.log('Using interval-based caption tracking');
+            
+            // Try to enable captions in the player
+            if (player) {
+                try {
+                    // Force captions to be visible
+                    player.loadModule('captions');
+                    player.setOption('captions', 'track', {'languageCode': 'en'});
+                    player.setOption('captions', 'reload', true);
+                    player.setOption('captions', 'fontSize', 1);
+                    player.setOption('captions', 'displaySettings', {'background': '#000000CC'});
+                    
+                    // Additional settings to ensure captions are visible
+                    const iframe = document.querySelector('.youtube-embed iframe');
+                    if (iframe) {
+                        // Add a message to help debug
+                        console.log('Setting up caption tracking on iframe:', iframe);
+                        
+                        // Try to access the iframe content (may fail due to CORS)
+                        try {
+                            const iframeWindow = iframe.contentWindow;
+                            if (iframeWindow) {
+                                // Try to send a message to the iframe to enable captions
+                                iframeWindow.postMessage('{"event":"command","func":"enableCaptions","args":""}', '*');
+                            }
+                        } catch (e) {
+                            console.error('Error accessing iframe content:', e);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error setting up captions in player:', e);
+                }
+            }
+            
+            if (timeTrackingInterval) {
+                clearInterval(timeTrackingInterval);
+            }
+            
+            // Set up a message listener for caption events from the iframe
+            window.addEventListener('message', function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data && data.event === 'caption' && data.text) {
+                        console.log('Received caption event:', data);
+                        addCaptionIfNew(data.text, data.time || currentVideoTime);
+                    }
+                } catch (e) {
+                    // Ignore parsing errors
+                }
+            });
+            
+            timeTrackingInterval = setInterval(() => {
+                if (player && player.getCurrentTime) {
+                    currentVideoTime = Math.floor(player.getCurrentTime());
+                    
+                    // Try multiple methods to get caption text
+                    
+                    // Method 1: Try to get caption text from the player API
+                    try {
+                        if (player.getOptions && player.getOption) {
+                            const captionText = player.getOption('captions', 'text');
+                            if (captionText) {
+                                addCaptionIfNew(captionText, currentVideoTime);
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore errors in getting caption text
+                    }
+                    
+                    // Method 2: Try to find caption elements in the DOM
+                    try {
+                        // Look for caption elements in the iframe
+                        const iframe = document.querySelector('.youtube-embed iframe');
+                        if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+                            const iframeDoc = iframe.contentWindow.document;
+                            
+                            // Try multiple selectors for captions
+                            const selectors = [
+                                '.ytp-caption-segment',
+                                '.captions-text',
+                                '.caption-text',
+                                '.ytp-caption-window-container',
+                                '.ytp-caption-window'
+                            ];
+                            
+                            for (const selector of selectors) {
+                                const captionElements = iframeDoc.querySelectorAll(selector);
+                                if (captionElements.length > 0) {
+                                    let fullText = '';
+                                    captionElements.forEach(el => {
+                                        fullText += el.textContent + ' ';
+                                    });
+                                    
+                                    if (fullText.trim()) {
+                                        addCaptionIfNew(fullText.trim(), currentVideoTime);
+                                        break; // Found captions, no need to try other selectors
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore cross-origin errors
+                    }
+                    
+                    // Method 3: Look for caption elements in the main document
+                    // (sometimes captions are rendered outside the iframe)
+                    try {
+                        // Try multiple selectors for captions
+                        const selectors = [
+                            '.ytp-caption-segment',
+                            '.captions-text',
+                            '.caption-text',
+                            '.ytp-caption-window-container',
+                            '.ytp-caption-window'
+                        ];
+                        
+                        for (const selector of selectors) {
+                            const captionElements = document.querySelectorAll(selector);
+                            if (captionElements.length > 0) {
+                                let fullText = '';
+                                captionElements.forEach(el => {
+                                    fullText += el.textContent + ' ';
+                                });
+                                
+                                if (fullText.trim()) {
+                                    addCaptionIfNew(fullText.trim(), currentVideoTime);
+                                    break; // Found captions, no need to try other selectors
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore errors
+                    }
+                    
+                    // Update which caption is active
+                    updateActiveCaptions(currentVideoTime);
+                }
+            }, 500); // Check every half second
+        }
+        
+        // Helper function to add a caption if it's new
+        function addCaptionIfNew(captionText, currentTime) {
+            // Check if we already have this caption at this time
+            const existingCaption = captionsData.find(c => 
+                Math.abs(c.start - currentTime) < 1 && c.text === captionText
+            );
+            
+            if (!existingCaption) {
+                // Add this caption to our data
+                captionsData.push({
+                    start: currentTime,
+                    end: currentTime + 5, // Estimate 5 seconds duration
+                    text: captionText
+                });
+                
+                // Sort captions by start time
+                captionsData.sort((a, b) => a.start - b.start);
+                
+                // Update the display if captions are visible
+                if (isCaptionsVisible) {
+                    displayCaptions();
+                }
+            }
+        }
+        
+        // Display all captions in the container
+        function displayCaptions() {
+            const captionsContainer = document.getElementById('captionsContainer');
+            const captionsText = document.getElementById('captionsText');
+            const captionsError = document.getElementById('captionsError');
+            
+            // Hide any previous error message
+            if (captionsError) {
+                captionsError.style.display = 'none';
+            }
+            
+            if (captionsData.length === 0) {
+                captionsText.innerHTML = 'No captions available for this video.';
+                return;
+            }
+            
+            // Create HTML for all captions
+            let html = '';
+            captionsData.forEach((caption, index) => {
+                const formattedTime = formatTime(caption.start);
+                html += `<div class="caption-text" data-index="${index}" data-start="${caption.start}" data-end="${caption.end}">
+                    <span class="caption-time">[${formattedTime}]</span> ${caption.text}
+                </div>`;
+            });
+            
+            // Only update the HTML if it's different from the current content
+            // This prevents unnecessary DOM updates and scroll position resets
+            if (captionsText.innerHTML !== html) {
+                // Save the current scroll position
+                const scrollTop = captionsContainer.scrollTop;
+                
+                // Update the HTML
+            captionsText.innerHTML = html;
+            
+            // Add click event to captions to seek to that time
+            const captionElements = captionsText.querySelectorAll('.caption-text');
+            captionElements.forEach(element => {
+                element.addEventListener('click', function() {
+                    const start = parseFloat(this.dataset.start);
+                    if (player && player.seekTo) {
+                        player.seekTo(start, true);
+                        player.playVideo();
+                    }
+                });
+            });
+                
+                // Restore the scroll position if we're not currently viewing the active caption
+                if (!document.querySelector('.caption-text.active') || !document.querySelector('.caption-text.active').scrollIntoView) {
+                    captionsContainer.scrollTop = scrollTop;
+                }
+            }
+            
+            // Update active caption based on current time
+            if (player && player.getCurrentTime) {
+                updateActiveCaptions(player.getCurrentTime());
+            }
+        }
+        
+        // Update which caption is active based on current video time
+        function updateActiveCaptions(currentTime) {
+            if (!isCaptionsVisible || captionsData.length === 0) return;
+            
+            // Find the caption that corresponds to the current time
+            const newActiveIndex = captionsData.findIndex(caption => 
+                currentTime >= caption.start && currentTime < caption.end
+            );
+            
+            // If active caption changed, update the UI
+            if (newActiveIndex !== activeCaptionIndex) {
+                activeCaptionIndex = newActiveIndex;
+                
+                // Remove active class from all captions
+                const allCaptions = document.querySelectorAll('.caption-text');
+                allCaptions.forEach(caption => caption.classList.remove('active'));
+                
+                // Add active class to current caption
+                if (activeCaptionIndex >= 0) {
+                    const activeCaption = document.querySelector(`.caption-text[data-index="${activeCaptionIndex}"]`);
+                    if (activeCaption) {
+                        activeCaption.classList.add('active');
+                        
+                        // Scroll to make active caption visible
+                        activeCaption.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            }
+        }
+        
+        // Format seconds to MM:SS format
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html> 

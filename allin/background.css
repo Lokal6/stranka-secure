@@ -1,0 +1,53 @@
+/* Background styles */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+body {
+    background-color: transparent;
+    color: #fff;
+}
+
+/* Full page background */
+.page-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -999;
+    overflow: hidden;
+}
+
+/* Background images */
+.page-background img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Mobile/Desktop visibility */
+.mobile-bg {
+    display: none;
+}
+
+.desktop-bg {
+    display: block;
+}
+
+/* Mobile devices */
+@media only screen and (max-width: 768px) {
+    .mobile-bg {
+        display: block;
+    }
+    
+    .desktop-bg {
+        display: none;
+    }
+} 

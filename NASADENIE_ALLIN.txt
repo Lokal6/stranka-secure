@@ -1,0 +1,42 @@
+NASADENIE S PRIEČINKOM 'ALLIN'
+============================
+
+Upravili sme konfiguráciu Firebase tak, aby používala priečinok 'allin' namiesto 'public'.
+Všetky potrebné súbory boli skopírované do tohto priečinka.
+
+KROKY PRE NASADENIE:
+------------------
+
+1. Otvorte príkazový riadok (cmd) v tomto adresári
+
+2. Uistite sa, že ste prihlásený do Firebase:
+   firebase login
+
+3. Nasaďte stránku s novou konfiguráciou:
+   firebase deploy --only hosting
+
+4. Po nasadení navštívte:
+   https://projekt-9ef39.web.app
+   
+   Alebo priamo testovací súbor:
+   https://projekt-9ef39.web.app/test.html
+
+DÔLEŽITÉ POZNÁMKY:
+----------------
+
+1. Ak robíte zmeny v súboroch, nezabudnite ich skopírovať do priečinka 'allin'
+
+2. Konfigurácia v súbore firebase.json bola upravená na:
+   {
+     "hosting": {
+       "public": "allin",
+       ...
+     }
+   }
+
+3. Ak by nasadenie zlyhalo, skúste tieto príkazy:
+   firebase hosting:disable
+   firebase hosting:enable
+   firebase deploy --only hosting
+
+4. Po nasadení počkajte aspoň 5 minút, kým sa zmeny prejavia 
