@@ -528,13 +528,14 @@
                         <button id="toggleVideoBtn">
                             <span>Show Video</span>
                         </button>
-                        <button id="toggleCaptionsBtn">
+                        <!-- Hide the captions toggle button -->
+                        <button id="toggleCaptionsBtn" style="display: none;">
                             <span>Show Captions</span>
                         </button>
                     </div>
                     
-                    <!-- Captions display area -->
-                    <div id="captionsContainer" class="captions-container">
+                    <!-- Hide the captions container -->
+                    <div id="captionsContainer" class="captions-container" style="display: none;">
                         <div id="captionsText">Captions will appear here when available...</div>
                         <div id="captionsError" style="color: #ff6b6b; margin-top: 10px; display: none;">
                             Error loading captions. Please try again later.
@@ -1399,7 +1400,7 @@
                             }
                             
                             // Set video with timestamp if available
-                            mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[currentVideoIndex].id}?enablejsapi=1${timestamp}&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                            mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[currentVideoIndex].id}?enablejsapi=1${timestamp}&hl=en`;
                             console.log(`Restored last watched video: ${allVideos[currentVideoIndex].title}${timestamp ? ` at timestamp: ${timestamp.replace('&start=', '')}` : ''}`);
                             return;
                         } else {
@@ -1427,7 +1428,7 @@
                                         }
                                         
                                         // Set video with timestamp if available
-                                        mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[currentVideoIndex].id}?enablejsapi=1${timestamp}&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                                        mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[currentVideoIndex].id}?enablejsapi=1${timestamp}&hl=en`;
                                         console.log(`Restored last watched video after loading: ${allVideos[currentVideoIndex].title}${timestamp ? ` at timestamp: ${timestamp.replace('&start=', '')}` : ''}`);
                                         return;
                                     }
@@ -1440,7 +1441,7 @@
                 // If no last watched video or not found, just set the first video without playing
                 if (allVideos.length > 0) {
                     currentVideoIndex = 0;
-                    mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[0].id}?enablejsapi=1&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                    mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[0].id}?enablejsapi=1&hl=en`;
                     console.log(`Set first video: ${allVideos[0].title}`);
                 }
             } catch (error) {
@@ -1448,7 +1449,7 @@
                 // Set first video as fallback without playing
                 if (allVideos.length > 0) {
                     currentVideoIndex = 0;
-                    mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[0].id}?enablejsapi=1&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                    mainYoutubeEmbed.src = `https://www.youtube.com/embed/${allVideos[0].id}?enablejsapi=1&hl=en`;
                 }
             }
         }
@@ -1753,7 +1754,7 @@
             
             // Update the iframe src with autoplay and enable JS API for events
             // Also enable closed captions
-            mainYoutubeEmbed.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+            mainYoutubeEmbed.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&hl=en`;
             
             // Find and update current video index
             const videoIndex = allVideos.findIndex(v => v.id === videoId);
@@ -2008,7 +2009,7 @@
                         'onError': onPlayerError
                     },
                     playerVars: {
-                        'cc_load_policy': 1,  // Force closed captions to display
+                        'cc_load_policy': 0,  // Disable closed captions
                         'cc_lang_pref': 'en', // Set preferred language to English (or your preferred language)
                         'hl': 'en',           // Set interface language
                         'enablejsapi': 1      // Enable JavaScript API
@@ -2076,7 +2077,7 @@
                 const iframe = document.createElement('iframe');
                 iframe.width = "100%";
                 iframe.height = "100%";
-                iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&rel=0&hl=en`;
                 iframe.title = "YouTube video player";
                 iframe.frameBorder = "0";
                 iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
@@ -2116,7 +2117,7 @@
                     currentVideoIndex++;
                     const nextVideoId = allVideos[currentVideoIndex].id;
                     document.querySelector('.youtube-embed iframe').src = 
-                        `https://www.youtube.com/embed/${nextVideoId}?autoplay=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                        `https://www.youtube.com/embed/${nextVideoId}?autoplay=1&rel=0&hl=en`;
                     
                     // Save state manually
                     saveUserVideoState(nextVideoId, 0);
@@ -2133,7 +2134,7 @@
                     currentVideoIndex--;
                     const prevVideoId = allVideos[currentVideoIndex].id;
                     document.querySelector('.youtube-embed iframe').src = 
-                        `https://www.youtube.com/embed/${prevVideoId}?autoplay=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                        `https://www.youtube.com/embed/${prevVideoId}?autoplay=1&rel=0&hl=en`;
                     
                     // Save state manually
                     saveUserVideoState(prevVideoId, 0);
@@ -2199,7 +2200,8 @@
                     timeTrackingInterval = setInterval(() => {
                         if (player && player.getCurrentTime) {
                             currentVideoTime = Math.floor(player.getCurrentTime());
-                            updateActiveCaptions(currentVideoTime);
+                            // Captions disabled
+                            // updateActiveCaptions(currentVideoTime);
                         }
                     }, 1000);
                     
@@ -2382,6 +2384,8 @@
             const captionsContainer = document.getElementById('captionsContainer');
             
             if (toggleCaptionsBtn) {
+                // Disable captions toggle functionality
+                /*
                 toggleCaptionsBtn.addEventListener('click', function() {
                     isCaptionsVisible = !isCaptionsVisible;
                     
@@ -2393,7 +2397,7 @@
                         // If we have captions data, display it
                         if (captionsData.length > 0) {
                             displayCaptions();
-                        } else if (allVideos[currentVideoIndex]) {
+                        } else {
                             // Otherwise fetch captions for current video
                             fetchCaptions(allVideos[currentVideoIndex].id);
                         }
@@ -2403,560 +2407,51 @@
                         toggleCaptionsBtn.querySelector('span').textContent = 'Show Captions';
                     }
                 });
+                */
             }
         });
 
         // Fetch captions for a video
         async function fetchCaptions(videoId) {
-            try {
-                console.log(`Fetching captions for video: ${videoId}`);
-                const captionsContainer = document.getElementById('captionsContainer');
-                const captionsText = document.getElementById('captionsText');
-                const captionsError = document.getElementById('captionsError');
-                
-                // Show loading message
-                if (isCaptionsVisible) {
-                    captionsText.innerHTML = 'Loading captions...';
-                    captionsContainer.style.display = 'block';
-                    captionsError.style.display = 'none';
-                }
-                
-                // Clear previous captions
-                captionsData = [];
-                
-                // Method 1: Use the deployed caption service
-                try {
-                    const captionServiceUrl = `https://kamikaze-ph18lkwr7-tomulecpeter-gmailcoms-projects.vercel.app/api/captions?videoId=${videoId}`;
-                    console.log(`Trying to fetch captions from service: ${captionServiceUrl}`);
-                    
-                    const response = await fetch(captionServiceUrl);
-                    if (!response.ok) {
-                        throw new Error(`Caption service returned ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const data = await response.json();
-                    console.log('Caption data from service:', data);
-                    
-                    if (data && data.captions && data.captions.length > 0) {
-                        captionsData = data.captions.map(caption => ({
-                            start: caption.start,
-                            end: caption.end,
-                            text: caption.text
-                        }));
-                        
-                        // Display captions if they're visible
-                        if (isCaptionsVisible) {
-                            displayCaptions();
-                        }
-                        return;
-                    } else {
-                        console.log('No captions found from service, falling back to YouTube Data API');
-                    }
-                } catch (serviceError) {
-                    console.error('Error using caption service:', serviceError);
-                    // Continue to fallback method
-                }
-                
-                // Fallback: Use YouTube Data API to check if captions are available
-                // This is a temporary solution until the Vercel service is deployed
-                
-                // Use YouTube Data API to check if captions are available
-                try {
-                    const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
-                    
-                    // Get video details to check if captions are available
-                    const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${apiKey}`;
-                    const videoDetailsResponse = await fetch(videoDetailsUrl);
-                    const videoDetailsData = await videoDetailsResponse.json();
-                    
-                    console.log('Video details from API:', videoDetailsData);
-                    
-                    if (videoDetailsData.items && videoDetailsData.items.length > 0) {
-                        const hasCaptions = videoDetailsData.items[0].contentDetails.caption === 'true';
-                        console.log(`Video has captions according to API: ${hasCaptions}`);
-                        
-                        if (hasCaptions) {
-                            // Since we can't directly access captions through the API without OAuth,
-                            // we'll use our fallback method to track captions as they appear
-                            setupCaptionTracking();
-                            
-                            // Show a message to the user
-                            if (isCaptionsVisible) {
-                                captionsText.innerHTML = `
-                                    <div style="text-align: center; padding: 20px;">
-                                        <p>Captions are available for this video.</p>
-                                        <p>Play the video to see captions appear here as they are displayed in the video.</p>
-                                        <p>Note: For technical reasons, captions will be collected as the video plays.</p>
-                                    </div>
-                                `;
-                            }
-                            return;
-                        }
-                    }
-                    
-                    throw new Error('Could not get captions using YouTube Data API');
-                } catch (dataApiError) {
-                    console.error('Error using YouTube Data API:', dataApiError);
-                    // Continue to fallback method
-                }
-                
-                // Final fallback: Use caption tracking from the player
-                console.log('Falling back to YouTube player captions');
-                setupCaptionTracking();
-                
-                // Show a message to the user
-                if (isCaptionsVisible) {
-                    captionsText.innerHTML = `
-                        <div style="text-align: center; padding: 20px;">
-                            <p>Captions are now enabled in the video player.</p>
-                            <p>Play the video to see captions appear here as they are displayed in the video.</p>
-                            <p>Note: For technical reasons, captions will be collected as the video plays.</p>
-                        </div>
-                    `;
-                }
-                
-            } catch (error) {
-                console.error('Error in fetchCaptions:', error);
-                const captionsText = document.getElementById('captionsText');
-                const captionsError = document.getElementById('captionsError');
-                
-                if (isCaptionsVisible) {
-                    captionsText.innerHTML = '';
-                    captionsError.textContent = 'Error loading captions. Please try again later.';
-                    captionsError.style.display = 'block';
-                }
-                captionsData = [];
-            }
+            // Captions functionality completely removed
+            console.log('Caption functionality has been removed from the application.');
+            return;
         }
         
         // Set up tracking of captions as they appear in the video
         function setupCaptionTracking() {
-            // First, make sure captions are enabled in the player
-            if (player && player.getOptions) {
-                try {
-                    // Try to enable captions in the player
-                    player.loadModule('captions');
-                    player.setOption('captions', 'track', {'languageCode': 'en'});
-                    player.setOption('captions', 'reload', true);
-                    player.setOption('captions', 'fontSize', 1);
-                    player.setOption('captions', 'displaySettings', {'background': '#000000CC'});
-                } catch (e) {
-                    console.error('Error setting up captions in player:', e);
-                }
-            }
-            
-            // Fall back to our interval-based approach
-            setupIntervalBasedCaptionTracking();
+            // Captions functionality completely removed
+            console.log('Caption tracking functionality has been removed from the application.');
+            return;
         }
         
         // Fallback method using intervals to check for captions
         function setupIntervalBasedCaptionTracking() {
-            console.log('Using interval-based caption tracking');
-            
-            // Try to enable captions in the player
-            if (player) {
-                try {
-                    // Force captions to be visible
-                    player.loadModule('captions');
-                    player.setOption('captions', 'track', {'languageCode': 'en'});
-                    player.setOption('captions', 'reload', true);
-                    player.setOption('captions', 'fontSize', 1);
-                    player.setOption('captions', 'displaySettings', {'background': '#000000CC'});
-                    
-                    // Additional settings to ensure captions are visible
-                    const iframe = document.querySelector('.youtube-embed iframe');
-                    if (iframe) {
-                        // Add a message to help debug
-                        console.log('Setting up caption tracking on iframe:', iframe);
-                        
-                        // Try to access the iframe content (may fail due to CORS)
-                        try {
-                            const iframeWindow = iframe.contentWindow;
-                            if (iframeWindow) {
-                                // Try to send a message to the iframe to enable captions
-                                iframeWindow.postMessage('{"event":"command","func":"enableCaptions","args":""}', '*');
-                            }
-                        } catch (e) {
-                            console.error('Error accessing iframe content:', e);
-                        }
-                    }
-                } catch (e) {
-                    console.error('Error setting up captions in player:', e);
-                }
-            }
-            
-            if (timeTrackingInterval) {
-                clearInterval(timeTrackingInterval);
-            }
-            
-            // Set up a message listener for caption events from the iframe
-            window.addEventListener('message', function(event) {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data && data.event === 'caption' && data.text) {
-                        console.log('Received caption event:', data);
-                        addCaptionIfNew(data.text, data.time || currentVideoTime);
-                    }
-                } catch (e) {
-                    // Ignore parsing errors
-                }
-            });
-            
-            // Create a MutationObserver to watch for caption changes in the DOM
-            try {
-                // Create a MutationObserver to watch for changes in the DOM
-                const captionObserver = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                            // Check if any of the added nodes contain caption text
-                            mutation.addedNodes.forEach(function(node) {
-                                if (node.textContent && node.textContent.trim() && 
-                                    !isNavigationText(node.textContent.trim())) {
-                                    console.log('Detected caption change:', node.textContent.trim());
-                                    addCaptionIfNew(node.textContent.trim(), currentVideoTime);
-                                }
-                            });
-                        }
-                    });
-                });
-                
-                // Try to observe the YouTube player container
-                const playerContainer = document.querySelector('.youtube-embed');
-                if (playerContainer) {
-                    captionObserver.observe(playerContainer, { 
-                        childList: true, 
-                        subtree: true,
-                        characterData: true
-                    });
-                    console.log('Set up MutationObserver on player container');
-                }
-            } catch (e) {
-                console.error('Error setting up MutationObserver:', e);
-            }
-            
-            // Use a more aggressive approach to capture captions
-            timeTrackingInterval = setInterval(() => {
-                if (player && player.getCurrentTime) {
-                    currentVideoTime = Math.floor(player.getCurrentTime());
-                    
-                    // Try multiple methods to get caption text
-                    
-                    // Method 1: Try to get caption text from the player API
-                    try {
-                        if (player.getOptions && player.getOption) {
-                            const captionText = player.getOption('captions', 'text');
-                            if (captionText && !isNavigationText(captionText)) {
-                                console.log('Got caption from player API:', captionText);
-                                addCaptionIfNew(captionText, currentVideoTime);
-                            }
-                        }
-                    } catch (e) {
-                        // Ignore errors in getting caption text
-                    }
-                    
-                    // Method 2: Try to find caption elements in the DOM
-                    try {
-                        // Look for caption elements in the iframe
-                        const iframe = document.querySelector('.youtube-embed iframe');
-                        if (iframe) {
-                            // Try to capture captions directly from the video
-                            try {
-                                // Use postMessage to request captions from the iframe
-                                iframe.contentWindow.postMessage(JSON.stringify({
-                                    event: 'command',
-                                    func: 'getCaptions',
-                                    args: []
-                                }), '*');
-                            } catch (e) {
-                                // Ignore cross-origin errors
-                            }
-                            
-                            // Try to access the iframe document (may fail due to CORS)
-                            try {
-                                if (iframe.contentDocument) {
-                                    const captionElements = iframe.contentDocument.querySelectorAll('.ytp-caption-segment');
-                                    if (captionElements.length > 0) {
-                                        let fullText = '';
-                                        captionElements.forEach(el => {
-                                            fullText += el.textContent + ' ';
-                                        });
-                                        
-                                        if (fullText.trim() && !isNavigationText(fullText.trim())) {
-                                            console.log('Got caption from iframe document:', fullText.trim());
-                                            addCaptionIfNew(fullText.trim(), currentVideoTime);
-                                        }
-                                    }
-                                }
-                            } catch (e) {
-                                // Ignore cross-origin errors
-                            }
-                        }
-                    } catch (e) {
-                        // Ignore cross-origin errors
-                    }
-                    
-                    // Method 3: Look for caption elements in the main document
-                    // (sometimes captions are rendered outside the iframe)
-                    try {
-                        // Try multiple selectors for captions
-                        const selectors = [
-                            '.ytp-caption-segment',
-                            '.captions-text',
-                            '.caption-text',
-                            '.ytp-caption-window-container',
-                            '.ytp-caption-window'
-                        ];
-                        
-                        for (const selector of selectors) {
-                            const captionElements = document.querySelectorAll(selector);
-                            if (captionElements.length > 0) {
-                                let fullText = '';
-                                captionElements.forEach(el => {
-                                    fullText += el.textContent + ' ';
-                                });
-                                
-                                if (fullText.trim() && !isNavigationText(fullText.trim())) {
-                                    console.log('Got caption from document:', fullText.trim());
-                                    addCaptionIfNew(fullText.trim(), currentVideoTime);
-                                    break; // Found captions, no need to try other selectors
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        // Ignore errors
-                    }
-                    
-                    // Method 4: Try to extract captions from the video element directly
-                    try {
-                        const videoElement = document.querySelector('.youtube-embed video');
-                        if (videoElement && videoElement.textTracks && videoElement.textTracks.length > 0) {
-                            const track = videoElement.textTracks[0];
-                            if (track.activeCues && track.activeCues.length > 0) {
-                                const cue = track.activeCues[0];
-                                if (cue && cue.text && !isNavigationText(cue.text)) {
-                                    console.log('Got caption from video textTrack:', cue.text);
-                                    addCaptionIfNew(cue.text, currentVideoTime);
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        // Ignore errors
-                    }
-                    
-                    // Method 5: Use a direct approach - capture the visible text in the video area
-                    try {
-                        // Get the text content of the player area
-                        const playerArea = document.querySelector('.youtube-embed');
-                        if (playerArea) {
-                            // Create a temporary element to hold a clone of the player area
-                            const temp = document.createElement('div');
-                            temp.style.position = 'absolute';
-                            temp.style.left = '-9999px';
-                            temp.style.top = '-9999px';
-                            temp.innerHTML = playerArea.innerHTML;
-                            document.body.appendChild(temp);
-                            
-                            // Try to find text that looks like captions
-                            const textNodes = [];
-                            const walker = document.createTreeWalker(
-                                temp,
-                                NodeFilter.SHOW_TEXT,
-                                null,
-                                false
-                            );
-                            
-                            let node;
-                            while (node = walker.nextNode()) {
-                                if (node.textContent.trim().length > 0) {
-                                    textNodes.push(node.textContent.trim());
-                                }
-                            }
-                            
-                            // Remove the temporary element
-                            document.body.removeChild(temp);
-                            
-                            // Find the text node that is most likely to be a caption
-                            // (usually longer than a few characters but not too long)
-                            const captionText = textNodes.find(text => 
-                                text.length > 5 && text.length < 200 && 
-                                !isNavigationText(text) &&
-                                !/menu|settings|play|pause|volume|mute|unmute|fullscreen|exit/i.test(text)
-                            );
-                            
-                            if (captionText) {
-                                console.log('Got caption from text extraction:', captionText);
-                                addCaptionIfNew(captionText, currentVideoTime);
-                            }
-                        }
-                    } catch (e) {
-                        // Ignore errors
-                    }
-                    
-                    // Update which caption is active
-                    updateActiveCaptions(currentVideoTime);
-                }
-            }, 500); // Check every half second
+            // Captions functionality completely removed
+            console.log('Interval-based caption tracking functionality has been removed from the application.');
+            return;
         }
         
         // Helper function to add a caption if it's new
         function addCaptionIfNew(captionText, currentTime) {
-            if (!captionText || captionText.trim() === '') {
-                return; // Ignore empty captions
-            }
-            
-            captionText = captionText.trim();
-            
-            // Additional check to filter out navigation elements
-            if (isNavigationText(captionText)) {
-                return; // Ignore navigation text
-            }
-            
-            // Check if the text is too short or too long
-            if (captionText.length < 3 || captionText.length > 300) {
-                return; // Ignore very short or very long text
-            }
-            
-            // Check if we already have this caption at this time
-            const existingCaption = captionsData.find(c => 
-                Math.abs(c.start - currentTime) < 2 && 
-                (c.text === captionText || 
-                 c.text.includes(captionText) || 
-                 captionText.includes(c.text))
-            );
-            
-            if (!existingCaption) {
-                console.log(`Adding new caption at ${currentTime}s: "${captionText}"`);
-                
-                // Add this caption to our data
-                captionsData.push({
-                    start: currentTime,
-                    end: currentTime + 5, // Estimate 5 seconds duration
-                    text: captionText
-                });
-                
-                // Sort captions by start time
-                captionsData.sort((a, b) => a.start - b.start);
-                
-                // Update the display if captions are visible
-                if (isCaptionsVisible) {
-                    displayCaptions();
-                }
-            }
+            // Captions functionality completely removed
+            return;
         }
         
         // Display all captions in the container
         function displayCaptions() {
-            const captionsContainer = document.getElementById('captionsContainer');
-            const captionsText = document.getElementById('captionsText');
-            const captionsError = document.getElementById('captionsError');
-            
-            // Hide any previous error message
-            if (captionsError) {
-                captionsError.style.display = 'none';
-            }
-            
-            if (captionsData.length === 0) {
-                captionsText.innerHTML = 'No captions available for this video.';
-                return;
-            }
-            
-            // Create HTML for all captions
-            let html = '';
-            
-            // Add a header with information
-            html += `<div class="caption-header" style="text-align: center; margin-bottom: 15px;">
-                <p>Found ${captionsData.length} caption segments</p>
-                <p style="font-size: 0.9em; color: #666;">Click on a caption to jump to that time</p>
-            </div>`;
-            
-            // Add captions
-            captionsData.forEach((caption, index) => {
-                const formattedTime = formatTime(caption.start);
-                html += `<div class="caption-text" data-index="${index}" data-start="${caption.start}" data-end="${caption.end}" style="margin-bottom: 10px; padding: 5px; border-radius: 4px; cursor: pointer;">
-                    <span class="caption-time" style="color: #666; font-size: 0.9em;">[${formattedTime}]</span> 
-                    <span class="caption-content" style="display: block;">${caption.text}</span>
-                </div>`;
-            });
-            
-            // Only update the HTML if it's different from the current content
-            // This prevents unnecessary DOM updates and scroll position resets
-            if (captionsText.innerHTML !== html) {
-                // Save the current scroll position
-                const scrollTop = captionsContainer.scrollTop;
-                
-                // Update the HTML
-                captionsText.innerHTML = html;
-                
-                // Add click event to captions to seek to that time
-                const captionElements = captionsText.querySelectorAll('.caption-text');
-                captionElements.forEach(element => {
-                    element.addEventListener('click', function() {
-                        const start = parseFloat(this.dataset.start);
-                        if (player && player.seekTo) {
-                            player.seekTo(start, true);
-                            player.playVideo();
-                        }
-                    });
-                    
-                    // Add hover effect
-                    element.addEventListener('mouseover', function() {
-                        this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                    });
-                    
-                    element.addEventListener('mouseout', function() {
-                        this.style.backgroundColor = '';
-                    });
-                });
-                
-                // Restore the scroll position if we're not currently viewing the active caption
-                if (!document.querySelector('.caption-text.active') || !document.querySelector('.caption-text.active').scrollIntoView) {
-                    captionsContainer.scrollTop = scrollTop;
-                }
-            }
-            
-            // Update active caption based on current time
-            if (player && player.getCurrentTime) {
-                updateActiveCaptions(player.getCurrentTime());
-            }
+            // Captions functionality completely removed
+            console.log('Caption display functionality has been removed from the application.');
+            return;
         }
         
         // Update which caption is active based on current video time
         function updateActiveCaptions(currentTime) {
-            if (!isCaptionsVisible || captionsData.length === 0) return;
+            // Captions disabled - early return
+            return;
             
-            // Find the caption that corresponds to the current time
-            const newActiveIndex = captionsData.findIndex(caption => 
-                currentTime >= caption.start && currentTime < caption.end
-            );
-            
-            // If active caption changed, update the UI
-            if (newActiveIndex !== activeCaptionIndex) {
-                activeCaptionIndex = newActiveIndex;
-                
-                // Remove active class from all captions
-                const allCaptions = document.querySelectorAll('.caption-text');
-                allCaptions.forEach(caption => {
-                    caption.classList.remove('active');
-                    caption.style.backgroundColor = '';
-                    caption.style.borderLeft = '';
-                });
-                
-                // Add active class to current caption
-                if (activeCaptionIndex >= 0) {
-                    const activeCaption = document.querySelector(`.caption-text[data-index="${activeCaptionIndex}"]`);
-                    if (activeCaption) {
-                        activeCaption.classList.add('active');
-                        activeCaption.style.backgroundColor = 'rgba(66, 133, 244, 0.2)';
-                        activeCaption.style.borderLeft = '3px solid #4285f4';
-                        
-                        // Scroll to make active caption visible
-                        activeCaption.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        
-                        // Log the active caption for debugging
-                        console.log(`Active caption: "${captionsData[activeCaptionIndex].text}"`);
-                    }
-                }
-            }
+            // Original code below (now skipped)
+            // ... existing code ...
         }
         
         // Format seconds to MM:SS format
@@ -3017,39 +2512,7 @@
 
         // Helper function to check if text is navigation text from our UI
         function isNavigationText(text) {
-            if (!text) return true;
-            
-            // Check if the text contains navigation elements from our UI
-            const navigationPatterns = [
-                'Next Video',
-                'PlayList',
-                'Save Timestamp',
-                'Show Video',
-                'Hide Captions',
-                'Show Captions',
-                'Home',
-                'About',
-                'Services',
-                'Contact',
-                'Documentation',
-                'Night Style',
-                'Logout',
-                'Sign in',
-                'Solo Leveling'
-            ];
-            
-            // Check if the text contains timestamps in our format
-            if (/\[\d+:\d+\]/.test(text)) {
-                return true;
-            }
-            
-            // Check if the text contains any of our navigation patterns
-            for (const pattern of navigationPatterns) {
-                if (text.includes(pattern)) {
-                    return true;
-                }
-            }
-            
+            // Captions functionality completely removed
             return false;
         }
     </script>

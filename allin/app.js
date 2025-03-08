@@ -227,7 +227,7 @@ const ThemeManager = (function() {
         }
         
         if (App.elements.mobileBg) {
-            App.elements.mobileBg.src = 'assets/images/solo-leveling-igris-shadow-8k-wallpaper-uhdpaper.com-149@5@d-night.jpg';
+            App.elements.mobileBg.src = 'assets/images/solo-leveling-igris-shadow-phone-wallpaper-4k-uhdpaper.com-149@5@d-night.jpg';
         }
         
         // Update header and footer styles
