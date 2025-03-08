@@ -577,8 +577,32 @@
             </section>
         </main>
 
-        <footer style="background-color: white !important; color: #333 !important; box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1) !important;">
-            <p>&copy; 2023 My Website. All rights reserved.</p>
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <h3>Solo Leveling</h3>
+                    </div>
+                    <div class="footer-links">
+                        <ul>
+                            <li><a href="#home">Home</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#services">Services</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                            <li><a href="documentation.md" target="_blank">Documentation</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2023 Solo Leveling. All rights reserved.</p>
+                </div>
+            </div>
         </footer>
     </div>
 
@@ -595,16 +619,238 @@
         </div>
     </div>
 
+    <!-- Network Status Monitor -->
+    <script>
+        // Network status monitoring
+        const NetworkMonitor = (function() {
+            let isOnline = navigator.onLine;
+            const listeners = [];
+            
+            // Initialize network monitoring
+            function init() {
+                // Set up event listeners for online/offline events
+                window.addEventListener('online', handleNetworkChange);
+                window.addEventListener('offline', handleNetworkChange);
+                
+                // Initial status check
+                checkNetworkStatus();
+            }
+            
+            // Handle network status changes
+            function handleNetworkChange() {
+                const wasOnline = isOnline;
+                isOnline = navigator.onLine;
+                
+                // Only notify if status actually changed
+                if (wasOnline !== isOnline) {
+                    notifyListeners();
+                    displayNetworkStatus();
+                }
+            }
+            
+            // Check network status
+            function checkNetworkStatus() {
+                return new Promise((resolve) => {
+                    // Use fetch to check if we can actually reach the server
+                    fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=PL79KHfFXBQXXOg_UAdkVtnz_m3zVr86QB&key=' + (window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'), { 
+                        method: 'HEAD',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        timeout: 5000
+                    })
+                    .then(() => {
+                        isOnline = true;
+                        notifyListeners();
+                        displayNetworkStatus();
+                        resolve(true);
+                    })
+                    .catch(() => {
+                        // We might be online but can't reach the server
+                        if (navigator.onLine) {
+                            console.warn('Browser reports online but cannot reach server');
+                        }
+                        isOnline = false;
+                        notifyListeners();
+                        displayNetworkStatus();
+                        resolve(false);
+                    });
+                });
+            }
+            
+            // Display network status to user
+            function displayNetworkStatus() {
+                const statusElement = document.getElementById('networkStatus');
+                
+                if (!statusElement) {
+                    // Create status element if it doesn't exist
+                    const newStatusElement = document.createElement('div');
+                    newStatusElement.id = 'networkStatus';
+                    newStatusElement.style.position = 'fixed';
+                    newStatusElement.style.bottom = '10px';
+                    newStatusElement.style.right = '10px';
+                    newStatusElement.style.padding = '8px 12px';
+                    newStatusElement.style.borderRadius = '4px';
+                    newStatusElement.style.fontSize = '14px';
+                    newStatusElement.style.fontWeight = 'bold';
+                    newStatusElement.style.zIndex = '9999';
+                    newStatusElement.style.transition = 'opacity 0.5s ease-in-out';
+                    document.body.appendChild(newStatusElement);
+                    
+                    // Add click handler to dismiss
+                    newStatusElement.addEventListener('click', () => {
+                        newStatusElement.style.opacity = '0';
+                        setTimeout(() => {
+                            newStatusElement.style.display = 'none';
+                        }, 500);
+                    });
+                }
+                
+                const statusElement2 = document.getElementById('networkStatus');
+                
+                if (isOnline) {
+                    statusElement2.textContent = 'Online';
+                    statusElement2.style.backgroundColor = '#4CAF50';
+                    statusElement2.style.color = 'white';
+                    
+                    // Hide after 3 seconds
+                    setTimeout(() => {
+                        statusElement2.style.opacity = '0';
+                        setTimeout(() => {
+                            statusElement2.style.display = 'none';
+                        }, 500);
+                    }, 3000);
+                } else {
+                    statusElement2.textContent = 'Offline - Check your connection';
+                    statusElement2.style.backgroundColor = '#F44336';
+                    statusElement2.style.color = 'white';
+                    statusElement2.style.display = 'block';
+                    statusElement2.style.opacity = '1';
+                }
+            }
+            
+            // Add listener for network status changes
+            function addListener(callback) {
+                if (typeof callback === 'function') {
+                    listeners.push(callback);
+                }
+            }
+            
+            // Notify all listeners of status change
+            function notifyListeners() {
+                listeners.forEach(listener => {
+                    try {
+                        listener(isOnline);
+                    } catch (error) {
+                        console.error('Error in network status listener:', error);
+                    }
+                });
+            }
+            
+            // Return public methods
+            return {
+                init: init,
+                isOnline: () => isOnline,
+                checkStatus: checkNetworkStatus,
+                addListener: addListener
+            };
+        })();
+        
+        // Initialize network monitoring
+        document.addEventListener('DOMContentLoaded', () => {
+            NetworkMonitor.init();
+            
+            // Add listener for network status changes
+            NetworkMonitor.addListener((online) => {
+                console.log('Network status changed:', online ? 'online' : 'offline');
+                
+                // Update UI based on network status
+                const videoPlayer = document.getElementById('mainYoutubeEmbed');
+                const videoControls = document.getElementById('videoControls');
+                
+                if (videoPlayer && videoControls) {
+                    if (!online) {
+                        // Show offline message in player
+                        videoPlayer.innerHTML = `
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; background-color: #000; color: #fff; text-align: center; padding: 20px;">
+                                <div>
+                                    <h3>You're offline</h3>
+                                    <p>Please check your internet connection to continue watching videos.</p>
+                                    <button id="retryConnection" style="padding: 8px 16px; background-color: #4285f4; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">Retry Connection</button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add retry button functionality
+                        const retryButton = document.getElementById('retryConnection');
+                        if (retryButton) {
+                            retryButton.addEventListener('click', () => {
+                                NetworkMonitor.checkStatus().then(isOnline => {
+                                    if (isOnline) {
+                                        // Reload player if we're back online
+                                        location.reload();
+                                    }
+                                });
+                            });
+                        }
+                        
+                        // Disable video controls
+                        if (videoControls) {
+                            videoControls.style.opacity = '0.5';
+                            videoControls.style.pointerEvents = 'none';
+                        }
+                    } else {
+                        // Re-enable video controls
+                        if (videoControls) {
+                            videoControls.style.opacity = '1';
+                            videoControls.style.pointerEvents = 'auto';
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script>
+        // Error handling for script loading
+        function handleScriptError(scriptSrc) {
+            console.error(`Failed to load script: ${scriptSrc}`);
+            const errorElement = document.getElementById('lockScreenError');
+            if (errorElement) {
+                errorElement.textContent = `Failed to load required resources. Please check your connection and try again.`;
+            }
+        }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" onerror="handleScriptError(this.src)"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js" onerror="handleScriptError(this.src)"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js" onerror="handleScriptError(this.src)"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js" onerror="handleScriptError(this.src)"></script>
     
     <!-- Environment variables -->
-    <script src=".env.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="app.js"></script>
+    <script src=".env.js" onerror="handleScriptError(this.src)"></script>
+    <script src="firebase-config-v2.js" onerror="handleScriptError(this.src)"></script>
+    <script src="app.js" onerror="handleScriptError(this.src)"></script>
+    
+    <!-- Testing Framework (only loaded in development mode) -->
+    <script>
+        // Check if we're in development mode
+        const isDevelopment = window.location.hostname === 'localhost' || 
+                             window.location.hostname === '127.0.0.1' ||
+                             window.location.hostname.includes('192.168.');
+        
+        // Load tests only in development mode
+        if (isDevelopment) {
+            const testScript = document.createElement('script');
+            testScript.src = 'tests.js';
+            testScript.onerror = function() {
+                console.error('Failed to load tests.js');
+            };
+            document.head.appendChild(testScript);
+            
+            console.log('Development mode detected. Test framework loaded.');
+            console.log('Run tests using: TestSuite.runAllTests()');
+        }
+    </script>
     
     <!-- YouTube API and Video Selection Script -->
     <script>
@@ -717,6 +963,9 @@
                 initializePlaylist().then(() => {
                     loadUserVideoState();
                 });
+                
+                // Sync any fallback data
+                syncFallbackData();
             } else {
                 // User is signed out
                 currentUser = null;
@@ -1385,36 +1634,118 @@
             }
         }
         
-        // Save user's current video to Firestore
-        async function saveUserVideoState(videoId, timestamp = null) {
+        // Debounce function to limit how often a function can be called
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+        
+        // Maximum number of retries for Firestore operations
+        const MAX_FIRESTORE_RETRIES = 3;
+        
+        // Save user's current video to Firestore with debouncing
+        const debouncedSaveUserVideoState = debounce(async (videoId, timestamp = null) => {
             if (!currentUser) return;
             
-            try {
-                // Find the video position
-                const videoIndex = allVideos.findIndex(v => v.id === videoId);
-                const videoPosition = videoIndex !== -1 ? allVideos[videoIndex].position : undefined;
-                
-                const userData = {
-                    lastWatchedVideo: videoId,
-                    videoPosition: videoPosition,
-                    lastWatched: firebase.firestore.FieldValue.serverTimestamp(),
-                    email: currentUser.email,
-                    displayName: currentUser.displayName,
-                    photoURL: currentUser.photoURL
-                };
-                
-                // Add timestamp if provided
-                if (timestamp !== null) {
-                    userData.lastVideoTimestamp = timestamp;
+            let retryCount = 0;
+            let success = false;
+            
+            while (!success && retryCount < MAX_FIRESTORE_RETRIES) {
+                try {
+                    // Find the video position
+                    const videoIndex = allVideos.findIndex(v => v.id === videoId);
+                    const videoPosition = videoIndex !== -1 ? allVideos[videoIndex].position : undefined;
+                    
+                    const userData = {
+                        lastWatchedVideo: videoId,
+                        videoPosition: videoPosition,
+                        lastWatched: firebase.firestore.FieldValue.serverTimestamp(),
+                        email: currentUser.email,
+                        displayName: currentUser.displayName,
+                        photoURL: currentUser.photoURL
+                    };
+                    
+                    // Add timestamp if provided
+                    if (timestamp !== null) {
+                        userData.lastVideoTimestamp = timestamp;
+                    }
+                    
+                    await firebase.firestore().collection('users').doc(currentUser.uid).set(userData, { merge: true });
+                    
+                    console.log('User video state saved' + (timestamp !== null ? ` with timestamp: ${timestamp}` : ''));
+                    success = true;
+                } catch (error) {
+                    retryCount++;
+                    console.error(`Error saving user video state (attempt ${retryCount}/${MAX_FIRESTORE_RETRIES}):`, error);
+                    
+                    if (retryCount < MAX_FIRESTORE_RETRIES) {
+                        // Exponential backoff: wait longer between each retry
+                        const waitTime = Math.pow(2, retryCount) * 1000;
+                        console.log(`Retrying in ${waitTime/1000} seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, waitTime));
+                    } else {
+                        // After max retries, store data locally as fallback
+                        try {
+                            const fallbackData = {
+                                videoId,
+                                timestamp,
+                                userId: currentUser.uid,
+                                savedAt: new Date().toISOString()
+                            };
+                            localStorage.setItem('videoStateFallback', JSON.stringify(fallbackData));
+                            console.log('Saved video state to local storage as fallback');
+                        } catch (localStorageError) {
+                            console.error('Failed to save to local storage:', localStorageError);
+                        }
+                    }
                 }
-                
-                await firebase.firestore().collection('users').doc(currentUser.uid).set(userData, { merge: true });
-                
-                console.log('User video state saved' + (timestamp !== null ? ` with timestamp: ${timestamp}` : ''));
+            }
+        }, 1000); // Debounce for 1 second
+        
+        // Wrapper function to maintain the original function signature
+        async function saveUserVideoState(videoId, timestamp = null) {
+            debouncedSaveUserVideoState(videoId, timestamp);
+        }
+        
+        // Function to check and sync local fallback data with Firestore
+        async function syncFallbackData() {
+            try {
+                const fallbackData = localStorage.getItem('videoStateFallback');
+                if (fallbackData && currentUser) {
+                    const parsedData = JSON.parse(fallbackData);
+                    
+                    // Only sync if it's for the current user
+                    if (parsedData.userId === currentUser.uid) {
+                        console.log('Found fallback data, attempting to sync with Firestore');
+                        
+                        // Try to save to Firestore directly (not through the debounced function)
+                        await saveUserVideoState(parsedData.videoId, parsedData.timestamp);
+                        
+                        // If successful, clear the fallback data
+                        localStorage.removeItem('videoStateFallback');
+                        console.log('Successfully synced fallback data with Firestore');
+                    }
+                }
             } catch (error) {
-                console.error('Error saving user video state:', error);
+                console.error('Error syncing fallback data:', error);
             }
         }
+        
+        // Check for fallback data when user logs in
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Existing code...
+                
+                // Sync any fallback data
+                syncFallbackData();
+            } else {
+                // Existing code...
+            }
+        });
         
         // Play a specific video
         function playVideo(videoId) {
@@ -1629,12 +1960,30 @@
         }
         
         // Set up YouTube iframe API to detect when videos end
-        let tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        let firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        function loadYouTubeAPI() {
+            try {
+                let tag = document.createElement('script');
+                tag.src = "https://www.youtube.com/iframe_api";
+                tag.onerror = function() {
+                    console.error("Failed to load YouTube iframe API");
+                    handleYouTubeApiFailure();
+                };
+                let firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            } catch (error) {
+                console.error("Error setting up YouTube API:", error);
+                handleYouTubeApiFailure();
+            }
+        }
+        
+        // Initialize YouTube API loading
+        loadYouTubeAPI();
         
         let player;
+        let youtubeApiLoaded = false;
+        let youtubeApiLoadAttempts = 0;
+        const MAX_API_LOAD_ATTEMPTS = 3;
+        let youtubeApiLoadTimeout;
         
         // YouTube API Player States
         const YT_PLAYER_STATES = {
@@ -1647,107 +1996,313 @@
         
         // This function is called by the YouTube API when it's ready
         function onYouTubeIframeAPIReady() {
-            console.log("YouTube API ready");
-            player = new YT.Player(mainYoutubeEmbed, {
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
-                },
-                playerVars: {
-                    'cc_load_policy': 1,  // Force closed captions to display
-                    'cc_lang_pref': 'en', // Set preferred language to English (or your preferred language)
-                    'hl': 'en',           // Set interface language
-                    'enablejsapi': 1      // Enable JavaScript API
+            try {
+                console.log("YouTube API ready");
+                youtubeApiLoaded = true;
+                clearTimeout(youtubeApiLoadTimeout);
+                
+                player = new YT.Player(mainYoutubeEmbed, {
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange,
+                        'onError': onPlayerError
+                    },
+                    playerVars: {
+                        'cc_load_policy': 1,  // Force closed captions to display
+                        'cc_lang_pref': 'en', // Set preferred language to English (or your preferred language)
+                        'hl': 'en',           // Set interface language
+                        'enablejsapi': 1      // Enable JavaScript API
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing YouTube player:", error);
+                handleYouTubeApiFailure();
+            }
+        }
+        
+        // Set a timeout to check if the YouTube API loaded successfully
+        youtubeApiLoadTimeout = setTimeout(() => {
+            if (!youtubeApiLoaded) {
+                console.warn("YouTube API failed to load within timeout period");
+                handleYouTubeApiFailure();
+            }
+        }, 10000); // 10 seconds timeout
+        
+        // Handle YouTube API loading failure
+        function handleYouTubeApiFailure() {
+            youtubeApiLoadAttempts++;
+            
+            if (youtubeApiLoadAttempts < MAX_API_LOAD_ATTEMPTS) {
+                console.log(`Retrying YouTube API load (attempt ${youtubeApiLoadAttempts} of ${MAX_API_LOAD_ATTEMPTS})`);
+                
+                // Remove the failed script tag
+                const oldScriptTag = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+                if (oldScriptTag) {
+                    oldScriptTag.remove();
                 }
-            });
+                
+                // Create a new script tag
+                let newTag = document.createElement('script');
+                newTag.src = "https://www.youtube.com/iframe_api";
+                let firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(newTag, firstScriptTag);
+                
+                // Set a new timeout
+                youtubeApiLoadTimeout = setTimeout(() => {
+                    if (!youtubeApiLoaded) {
+                        console.warn("YouTube API failed to load within timeout period");
+                        handleYouTubeApiFailure();
+                    }
+                }, 10000); // 10 seconds timeout
+            } else {
+                console.error("Failed to load YouTube API after multiple attempts");
+                fallbackToDirectEmbed();
+            }
+        }
+        
+        // Fallback to direct embed if YouTube API fails
+        function fallbackToDirectEmbed() {
+            console.log("Falling back to direct YouTube embed");
+            
+            // Create a direct iframe embed as fallback
+            const youtubeContainer = document.querySelector('.youtube-embed');
+            if (youtubeContainer && allVideos.length > 0) {
+                const currentVideoId = allVideos[currentVideoIndex]?.id || allVideos[0].id;
+                
+                // Clear the container
+                youtubeContainer.innerHTML = '';
+                
+                // Create a new iframe with direct embed
+                const iframe = document.createElement('iframe');
+                iframe.width = "100%";
+                iframe.height = "100%";
+                iframe.src = `https://www.youtube.com/embed/${currentVideoId}?autoplay=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                iframe.title = "YouTube video player";
+                iframe.frameBorder = "0";
+                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+                
+                youtubeContainer.appendChild(iframe);
+                
+                // Set up manual controls for fallback mode
+                setupFallbackControls(currentVideoId);
+            }
+        }
+        
+        // Set up manual controls for fallback mode
+        function setupFallbackControls(videoId) {
+            // Add manual next/previous buttons if they don't exist
+            const controlsContainer = document.querySelector('.video-controls') || document.createElement('div');
+            if (!document.querySelector('.video-controls')) {
+                controlsContainer.className = 'video-controls';
+                document.querySelector('.youtube-embed').after(controlsContainer);
+            }
+            
+            // Clear existing controls
+            controlsContainer.innerHTML = '';
+            
+            // Add fallback message
+            const fallbackMessage = document.createElement('div');
+            fallbackMessage.className = 'fallback-message';
+            fallbackMessage.textContent = 'Using basic player mode due to API loading issue';
+            controlsContainer.appendChild(fallbackMessage);
+            
+            // Add manual next button
+            const nextButton = document.createElement('button');
+            nextButton.className = 'control-button next-button';
+            nextButton.textContent = 'Next Video';
+            nextButton.onclick = () => {
+                if (currentVideoIndex < allVideos.length - 1) {
+                    currentVideoIndex++;
+                    const nextVideoId = allVideos[currentVideoIndex].id;
+                    document.querySelector('.youtube-embed iframe').src = 
+                        `https://www.youtube.com/embed/${nextVideoId}?autoplay=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                    
+                    // Save state manually
+                    saveUserVideoState(nextVideoId, 0);
+                }
+            };
+            controlsContainer.appendChild(nextButton);
+            
+            // Add manual previous button
+            const prevButton = document.createElement('button');
+            prevButton.className = 'control-button prev-button';
+            prevButton.textContent = 'Previous Video';
+            prevButton.onclick = () => {
+                if (currentVideoIndex > 0) {
+                    currentVideoIndex--;
+                    const prevVideoId = allVideos[currentVideoIndex].id;
+                    document.querySelector('.youtube-embed iframe').src = 
+                        `https://www.youtube.com/embed/${prevVideoId}?autoplay=1&rel=0&cc_load_policy=1&cc_lang_pref=en&hl=en`;
+                    
+                    // Save state manually
+                    saveUserVideoState(prevVideoId, 0);
+                }
+            };
+            controlsContainer.appendChild(prevButton);
+        }
+        
+        // Handle player errors
+        function onPlayerError(event) {
+            console.error("YouTube player error:", event.data);
+            
+            // Error codes: https://developers.google.com/youtube/iframe_api_reference#onError
+            const errorMessages = {
+                2: "Invalid video ID",
+                5: "HTML5 player error",
+                100: "Video not found or removed",
+                101: "Embedding not allowed",
+                150: "Embedding not allowed"
+            };
+            
+            const errorMessage = errorMessages[event.data] || "Unknown player error";
+            console.error(errorMessage);
+            
+            // Try to recover by moving to the next video if possible
+            if ([100, 101, 150].includes(event.data) && currentVideoIndex < allVideos.length - 1) {
+                console.log("Attempting to recover by playing next video");
+                currentVideoIndex++;
+                playCurrentVideo();
+            }
         }
         
         // This function is called when the player is ready
         function onPlayerReady(event) {
-            console.log("Player ready");
-            
-            // Save the current timestamp immediately when the player is ready
-            // This helps ensure we have a timestamp saved even if the user doesn't interact with the video
-            setTimeout(() => {
-                if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
-                    const currentTime = Math.floor(player.getCurrentTime());
-                    console.log(`Saving initial timestamp: ${currentTime}`);
-                    saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
-                }
-            }, 3000); // Wait 3 seconds to ensure the player is fully loaded
+            try {
+                console.log("Player ready");
+                
+                // Save the current timestamp immediately when the player is ready
+                // This helps ensure we have a timestamp saved even if the user doesn't interact with the video
+                setTimeout(() => {
+                    if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
+                        const currentTime = Math.floor(player.getCurrentTime());
+                        console.log(`Saving initial timestamp: ${currentTime}`);
+                        saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
+                    }
+                }, 3000); // Wait 3 seconds to ensure the player is fully loaded
+            } catch (error) {
+                console.error("Error in onPlayerReady:", error);
+            }
         }
         
         // This function is called when the player's state changes
         function onPlayerStateChange(event) {
-            // When video is playing, update current time every second
-            if (event.data === YT_PLAYER_STATES.PLAYING) {
-                // Clear any existing interval
-                if (timeTrackingInterval) {
-                    clearInterval(timeTrackingInterval);
-                }
-                
-                // Start tracking current time
-                timeTrackingInterval = setInterval(() => {
-                    if (player && player.getCurrentTime) {
-                        currentVideoTime = Math.floor(player.getCurrentTime());
-                        updateActiveCaptions(currentVideoTime);
+            try {
+                // When video is playing, update current time every second
+                if (event.data === YT_PLAYER_STATES.PLAYING) {
+                    // Clear any existing interval
+                    if (timeTrackingInterval) {
+                        clearInterval(timeTrackingInterval);
                     }
-                }, 1000);
-                
-                // Set up periodic saving of video state (every 30 seconds)
-                if (saveStateInterval) {
-                    clearInterval(saveStateInterval);
+                    
+                    // Start tracking current time
+                    timeTrackingInterval = setInterval(() => {
+                        if (player && player.getCurrentTime) {
+                            currentVideoTime = Math.floor(player.getCurrentTime());
+                            updateActiveCaptions(currentVideoTime);
+                        }
+                    }, 1000);
+                    
+                    // Set up periodic saving of video state (every 30 seconds)
+                    if (saveStateInterval) {
+                        clearInterval(saveStateInterval);
+                    }
+                    
+                    saveStateInterval = setInterval(() => {
+                        if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
+                            const currentTime = Math.floor(player.getCurrentTime());
+                            console.log(`Periodically saving timestamp: ${currentTime}`);
+                            saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
+                        }
+                    }, 30000); // Save every 30 seconds
+                    
+                    // Hide next video button
+                    const nextVideoBtn = document.getElementById('nextVideoBtn');
+                    if (nextVideoBtn) {
+                        nextVideoBtn.style.display = 'none';
+                    }
                 }
-                
-                saveStateInterval = setInterval(() => {
+                // When video is paused, clear the intervals
+                else if (event.data === YT_PLAYER_STATES.PAUSED) {
+                    if (timeTrackingInterval) {
+                        clearInterval(timeTrackingInterval);
+                    }
+                    
+                    // Save the current timestamp when paused
                     if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
                         const currentTime = Math.floor(player.getCurrentTime());
-                        console.log(`Periodically saving timestamp: ${currentTime}`);
+                        console.log(`Saving timestamp on pause: ${currentTime}`);
                         saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
                     }
-                }, 30000); // Save every 30 seconds
-                
-                // Hide next video button
-                const nextVideoBtn = document.getElementById('nextVideoBtn');
-                if (nextVideoBtn) {
-                    nextVideoBtn.style.display = 'none';
+                    
+                    // Clear the save state interval
+                    if (saveStateInterval) {
+                        clearInterval(saveStateInterval);
+                    }
                 }
-            }
-            // When video is paused, clear the intervals
-            else if (event.data === YT_PLAYER_STATES.PAUSED) {
-                if (timeTrackingInterval) {
-                    clearInterval(timeTrackingInterval);
+                // When video ends, show next video button and save timestamp
+                else if (event.data === YT_PLAYER_STATES.ENDED) {
+                    console.log("Video ended");
+                    
+                    // Clear intervals
+                    if (timeTrackingInterval) {
+                        clearInterval(timeTrackingInterval);
+                    }
+                    
+                    if (saveStateInterval) {
+                        clearInterval(saveStateInterval);
+                    }
+                    
+                    // Save the final timestamp
+                    if (currentUser && allVideos[currentVideoIndex]) {
+                        console.log("Saving final timestamp at video end");
+                        saveUserVideoState(allVideos[currentVideoIndex].id, 0); // Reset to beginning
+                    }
+                    
+                    // Show next video button if not the last video
+                    if (currentVideoIndex < allVideos.length - 1) {
+                        const nextVideoBtn = document.getElementById('nextVideoBtn');
+                        if (nextVideoBtn) {
+                            nextVideoBtn.style.display = 'block';
+                        }
+                    }
+                    
+                    // Auto-play next video if enabled
+                    if (autoPlayEnabled && currentVideoIndex < allVideos.length - 1) {
+                        setTimeout(() => {
+                            playNextVideo();
+                        }, 3000); // Wait 3 seconds before auto-playing next video
+                    }
                 }
+            } catch (error) {
+                console.error("Error in onPlayerStateChange:", error);
                 
-                // Save the current timestamp when paused
-                if (currentUser && player && player.getCurrentTime && allVideos[currentVideoIndex]) {
-                    const currentTime = Math.floor(player.getCurrentTime());
-                    console.log(`Saving timestamp on pause: ${currentTime}`);
-                    saveUserVideoState(allVideos[currentVideoIndex].id, currentTime);
-                }
-                
-                // Clear the save state interval
-                if (saveStateInterval) {
-                    clearInterval(saveStateInterval);
-                }
-            }
-            // When video ends (state = 0), show next video button and clear intervals
-            else if (event.data === YT_PLAYER_STATES.ENDED) {
-                console.log("Video ended");
-                
-                // Clear the intervals
-                if (timeTrackingInterval) {
-                    clearInterval(timeTrackingInterval);
-                }
-                
-                if (saveStateInterval) {
-                    clearInterval(saveStateInterval);
-                }
-                
-                // Show next video button
-                const nextVideoBtn = document.getElementById('nextVideoBtn');
-                if (nextVideoBtn) {
-                    nextVideoBtn.style.display = 'block';
+                // Attempt to recover from error
+                try {
+                    // Clear any existing intervals to prevent memory leaks
+                    if (timeTrackingInterval) {
+                        clearInterval(timeTrackingInterval);
+                        timeTrackingInterval = null;
+                    }
+                    
+                    if (saveStateInterval) {
+                        clearInterval(saveStateInterval);
+                        saveStateInterval = null;
+                    }
+                    
+                    // If player is in an error state, try to recover by reloading the current video
+                    if (player && player.getPlayerState && player.getPlayerState() === -1) {
+                        console.log("Attempting to recover player from error state");
+                        if (allVideos[currentVideoIndex]) {
+                            setTimeout(() => {
+                                player.loadVideoById(allVideos[currentVideoIndex].id);
+                            }, 2000);
+                        }
+                    }
+                } catch (recoveryError) {
+                    console.error("Failed to recover from player state change error:", recoveryError);
+                    // Last resort - reload the iframe
+                    fallbackToDirectEmbed();
                 }
             }
         }
@@ -1869,266 +2424,45 @@
                 // Clear previous captions
                 captionsData = [];
                 
-                // NEW DIRECT METHOD: Use YouTube's direct timedtext API
+                // Method 1: Use the deployed caption service
                 try {
-                    // This is a direct method that should work for most videos
-                    // First, we need to find the available languages
-                    const langUrl = `https://www.youtube.com/api/timedtext?type=list&v=${videoId}`;
+                    const captionServiceUrl = `https://kamikaze-ph18lkwr7-tomulecpeter-gmailcoms-projects.vercel.app/api/captions?videoId=${videoId}`;
+                    console.log(`Trying to fetch captions from service: ${captionServiceUrl}`);
                     
-                    // Use a fetch with no-cors mode to avoid CORS issues
-                    const langResponse = await fetch(langUrl, { mode: 'no-cors' })
-                        .then(() => {
-                            // If we get here, the request didn't throw an error, but we can't access the response
-                            // due to CORS. Let's try a different approach with a proxy.
-                            return fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(langUrl)}`);
-                        })
-                        .catch(error => {
-                            console.error('Error fetching language list:', error);
-                            // Try with a proxy directly
-                            return fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(langUrl)}`);
-                        });
-                    
-                    const langText = await langResponse.text();
-                    console.log('Language response:', langText);
-                    
-                    // Parse the XML to find the language codes
-                    const langParser = new DOMParser();
-                    const langDoc = langParser.parseFromString(langText, "text/xml");
-                    const trackElements = langDoc.getElementsByTagName('track');
-                    
-                    if (trackElements.length > 0) {
-                        // Try to find English captions first
-                        let langCode = '';
-                        let langName = '';
-                        
-                        // Look for English captions first
-                        for (let i = 0; i < trackElements.length; i++) {
-                            const track = trackElements[i];
-                            const lang = track.getAttribute('lang_code');
-                            const name = track.getAttribute('name') || '';
-                            
-                            if (lang === 'en' || lang.startsWith('en-') || 
-                                name.toLowerCase().includes('english') || 
-                                (lang === 'a.en' && name.toLowerCase().includes('auto'))) {
-                                langCode = lang;
-                                langName = name;
-                                break;
-                            }
-                        }
-                        
-                        // If no English captions, use the first available
-                        if (!langCode && trackElements.length > 0) {
-                            langCode = trackElements[0].getAttribute('lang_code');
-                            langName = trackElements[0].getAttribute('name') || '';
-                        }
-                        
-                        if (langCode) {
-                            console.log(`Found captions in language: ${langName} (${langCode})`);
-                            
-                            // Now fetch the actual captions
-                            const captionUrl = `https://www.youtube.com/api/timedtext?lang=${langCode}&v=${videoId}`;
-                            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(captionUrl)}`;
-                            
-                            const captionResponse = await fetch(proxyUrl);
-                            const captionText = await captionResponse.text();
-                    
-                    // Parse the XML
-                    const parser = new DOMParser();
-                            const xmlDoc = parser.parseFromString(captionText, "text/xml");
-                    const textElements = xmlDoc.getElementsByTagName('text');
-                    
-                            if (textElements.length > 0) {
-                    // Convert to array of caption objects
-                    captionsData = [];
-                    for (let i = 0; i < textElements.length; i++) {
-                        const element = textElements[i];
-                        const start = parseFloat(element.getAttribute('start'));
-                        const dur = parseFloat(element.getAttribute('dur') || '0');
-                                    
-                                    // Replace HTML entities in the text
-                                    let text = element.textContent;
-                                    const tempDiv = document.createElement('div');
-                                    tempDiv.innerHTML = text;
-                                    text = tempDiv.textContent;
-                        
-                        captionsData.push({
-                            start,
-                            end: start + dur,
-                            text
-                        });
+                    const response = await fetch(captionServiceUrl);
+                    if (!response.ok) {
+                        throw new Error(`Caption service returned ${response.status}: ${response.statusText}`);
                     }
-                                
-                                console.log(`Parsed ${captionsData.length} captions from direct API`);
-                                
-                                // Display captions if they're visible
-                                if (isCaptionsVisible) {
-                                    displayCaptions();
-                                }
-                                return;
-                            } else {
-                                throw new Error('No text elements found in caption XML');
-                            }
-                        } else {
-                            throw new Error('No suitable language found for captions');
+                    
+                    const data = await response.json();
+                    console.log('Caption data from service:', data);
+                    
+                    if (data && data.captions && data.captions.length > 0) {
+                        captionsData = data.captions.map(caption => ({
+                            start: caption.start,
+                            end: caption.end,
+                            text: caption.text
+                        }));
+                        
+                        // Display captions if they're visible
+                        if (isCaptionsVisible) {
+                            displayCaptions();
                         }
+                        return;
                     } else {
-                        throw new Error('No caption tracks found');
+                        console.log('No captions found from service, falling back to YouTube Data API');
                     }
-                } catch (directApiError) {
-                    console.error('Error using direct YouTube API:', directApiError);
-                    // Continue to other methods
+                } catch (serviceError) {
+                    console.error('Error using caption service:', serviceError);
+                    // Continue to fallback method
                 }
                 
-                // Try with another CORS proxy service
-                try {
-                    // This is a different CORS proxy that might work better
-                    const corsProxyUrl = `https://cors-anywhere.herokuapp.com/https://www.youtube.com/api/timedtext?lang=en&v=${videoId}`;
-                    
-                    const proxyResponse = await fetch(corsProxyUrl, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                    
-                    if (proxyResponse.ok) {
-                        const xmlText = await proxyResponse.text();
-                        console.log('Successfully fetched captions XML through CORS-Anywhere proxy');
-                        
-                        // Parse the XML
-                        const parser = new DOMParser();
-                        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                        const textElements = xmlDoc.getElementsByTagName('text');
-                        
-                        if (textElements.length > 0) {
-                            // Convert to array of caption objects
-                            captionsData = [];
-                            for (let i = 0; i < textElements.length; i++) {
-                                const element = textElements[i];
-                                const start = parseFloat(element.getAttribute('start'));
-                                const dur = parseFloat(element.getAttribute('dur') || '0');
-                                
-                                // Replace HTML entities in the text
-                                let text = element.textContent;
-                                const tempDiv = document.createElement('div');
-                                tempDiv.innerHTML = text;
-                                text = tempDiv.textContent;
-                                
-                                captionsData.push({
-                                    start,
-                                    end: start + dur,
-                                    text
-                                });
-                            }
-                            
-                            console.log(`Parsed ${captionsData.length} captions from CORS-Anywhere proxy`);
-                            
-                            // Display captions if they're visible
-                            if (isCaptionsVisible) {
-                                displayCaptions();
-                            }
-                            return;
-                        } else {
-                            throw new Error('No text elements found in XML from CORS-Anywhere');
-                        }
-                    } else {
-                        throw new Error(`CORS-Anywhere proxy response not OK: ${proxyResponse.status}`);
-                    }
-                } catch (corsAnywhereError) {
-                    console.error('Error fetching captions through CORS-Anywhere proxy:', corsAnywhereError);
-                    // Continue to next fallback method
-                }
+                // Fallback: Use YouTube Data API to check if captions are available
+                // This is a temporary solution until the Vercel service is deployed
                 
-                // Try using a different third-party API service
+                // Use YouTube Data API to check if captions are available
                 try {
-                    // This is a different service that provides YouTube transcripts
-                    const apiUrl = `https://subtitles-for-youtube.p.rapidapi.com/subtitles/${videoId}?lang=en`;
-                    
-                    const apiResponse = await fetch(apiUrl, {
-                        method: 'GET',
-                        headers: {
-                            'X-RapidAPI-Key': window.ENV?.RAPID_API_KEY || '3c2d2a7e6fmsh4b1e7a9aec40d9dp1e9d6bjsn3d34bd5a0b0d',
-                            'X-RapidAPI-Host': 'subtitles-for-youtube.p.rapidapi.com'
-                        }
-                    });
-                    
-                    if (apiResponse.ok) {
-                        const data = await apiResponse.json();
-                        console.log('Successfully fetched captions from RapidAPI service');
-                        
-                        if (data && data.length > 0) {
-                            // Convert to our caption format
-                            captionsData = data.map(item => ({
-                                start: item.start,
-                                end: item.start + item.duration,
-                                text: item.text
-                            }));
-                            
-                            console.log(`Parsed ${captionsData.length} captions from RapidAPI service`);
-                            
-                            // Display captions if they're visible
-                            if (isCaptionsVisible) {
-                                displayCaptions();
-                            }
-                            return;
-                        } else {
-                            throw new Error('No captions found in RapidAPI response');
-                        }
-                    } else {
-                        throw new Error(`RapidAPI response not OK: ${apiResponse.status}`);
-                    }
-                } catch (rapidApiError) {
-                    console.error('Error fetching captions from RapidAPI:', rapidApiError);
-                    // Continue to next fallback method
-                }
-                
-                // Try using YouTube's oEmbed API and a caption extraction service
-                try {
-                    // First get video information using oEmbed
-                    const oEmbedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
-                    const oEmbedResponse = await fetch(oEmbedUrl);
-                    
-                    if (oEmbedResponse.ok) {
-                        const oEmbedData = await oEmbedResponse.json();
-                        console.log('Successfully fetched video info from oEmbed API:', oEmbedData);
-                        
-                        // Now try to get captions using a different service
-                        const captionServiceUrl = `https://caption-extractor.vercel.app/api/youtube?videoId=${videoId}`;
-                        
-                        const serviceResponse = await fetch(captionServiceUrl);
-                        if (serviceResponse.ok) {
-                            const serviceData = await serviceResponse.json();
-                            console.log('Successfully fetched captions from caption extractor service');
-                            
-                            if (serviceData && serviceData.captions && serviceData.captions.length > 0) {
-                                // Convert to our caption format
-                                captionsData = serviceData.captions.map(item => ({
-                                    start: item.start,
-                                    end: item.end,
-                                    text: item.text
-                                }));
-                                
-                                console.log(`Parsed ${captionsData.length} captions from caption extractor service`);
-                                
-                                // Display captions if they're visible
-                                if (isCaptionsVisible) {
-                                    displayCaptions();
-                                }
-                                return;
-                            }
-                        }
-                        
-                        throw new Error('Could not extract captions from caption service');
-                    } else {
-                        throw new Error(`oEmbed response not OK: ${oEmbedResponse.status}`);
-                    }
-                } catch (oEmbedError) {
-                    console.error('Error using oEmbed approach:', oEmbedError);
-                    // Continue to next fallback method
-                }
-                
-                // Try using YouTube's Data API directly
-                try {
-                    const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
+                    const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
                     
                     // Get video details to check if captions are available
                     const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${apiKey}`;
@@ -2163,250 +2497,22 @@
                     throw new Error('Could not get captions using YouTube Data API');
                 } catch (dataApiError) {
                     console.error('Error using YouTube Data API:', dataApiError);
-                    // Continue to next fallback method
+                    // Continue to fallback method
                 }
                 
-                // Try to fetch captions directly from a third-party service
-                try {
-                    // This service provides YouTube transcripts without CORS issues
-                    const response = await fetch(`https://yt-subtitle-scraper.vercel.app/api/subtitles?videoId=${videoId}`);
-                    const data = await response.json();
-                    
-                    if (data && data.subtitles && data.subtitles.length > 0) {
-                        console.log('Successfully fetched captions from third-party service');
-                        
-                        // Convert to our caption format
-                        captionsData = data.subtitles.map(caption => ({
-                            start: parseFloat(caption.start),
-                            end: parseFloat(caption.start) + parseFloat(caption.duration),
-                            text: caption.text
-                        }));
-                    
-                    console.log(`Parsed ${captionsData.length} captions`);
-                    
-                    // Display captions if they're visible
-                    if (isCaptionsVisible) {
-                        displayCaptions();
-                    }
-                        return;
-                } else {
-                        throw new Error('No captions found in response');
-                    }
-                } catch (directError) {
-                    console.error('Error fetching captions directly:', directError);
-                    // Continue to fallback methods
-                }
+                // Final fallback: Use caption tracking from the player
+                console.log('Falling back to YouTube player captions');
+                setupCaptionTracking();
                 
-                // Try another service with CORS proxy
-                try {
-                    // Use a CORS proxy to access YouTube's transcript API
-                    const corsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/api/timedtext?lang=en&v=${videoId}`)}`;
-                    const proxyResponse = await fetch(corsProxyUrl);
-                    
-                    if (proxyResponse.ok) {
-                        const xmlText = await proxyResponse.text();
-                        console.log('Successfully fetched captions XML through CORS proxy');
-                        
-                        // Parse the XML
-                        const parser = new DOMParser();
-                        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
-                        const textElements = xmlDoc.getElementsByTagName('text');
-                        
-                        if (textElements.length > 0) {
-                            // Convert to array of caption objects
-                            captionsData = [];
-                            for (let i = 0; i < textElements.length; i++) {
-                                const element = textElements[i];
-                                const start = parseFloat(element.getAttribute('start'));
-                                const dur = parseFloat(element.getAttribute('dur') || '0');
-                                const text = element.textContent;
-                                
-                                captionsData.push({
-                                    start,
-                                    end: start + dur,
-                                    text
-                                });
-                            }
-                            
-                            console.log(`Parsed ${captionsData.length} captions from XML`);
-                            
-                            // Display captions if they're visible
-                    if (isCaptionsVisible) {
-                                displayCaptions();
-                            }
-                            return;
-                        } else {
-                            throw new Error('No text elements found in XML');
-                        }
-                    } else {
-                        throw new Error(`CORS proxy response not OK: ${proxyResponse.status}`);
-                    }
-                } catch (proxyError) {
-                    console.error('Error fetching captions through CORS proxy:', proxyError);
-                    // Continue to next fallback method
-                }
-                
-                // Try yet another approach - using a different API endpoint
-                try {
-                    // This endpoint sometimes works better for certain videos
-                    const altCorsProxyUrl = `https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/api/timedtext?lang=en&fmt=json3&v=${videoId}`)}`;
-                    const altProxyResponse = await fetch(altCorsProxyUrl);
-                    
-                    if (altProxyResponse.ok) {
-                        const jsonText = await altProxyResponse.text();
-                        
-                        // Try to parse as JSON
-                        try {
-                            const jsonData = JSON.parse(jsonText);
-                            console.log('Successfully fetched captions JSON through CORS proxy');
-                            
-                            if (jsonData && jsonData.events) {
-                                // Convert to our caption format
-                    captionsData = [];
-                                
-                                jsonData.events.forEach(event => {
-                                    if (event.segs && event.tStartMs !== undefined) {
-                                        const start = event.tStartMs / 1000; // Convert to seconds
-                                        const duration = (event.dDurationMs || 5000) / 1000; // Convert to seconds, default 5s
-                                        
-                                        // Combine all segments into one text
-                                        let text = '';
-                                        event.segs.forEach(seg => {
-                                            if (seg.utf8) {
-                                                text += seg.utf8;
-                                            }
-                                        });
-                                        
-                                        if (text.trim()) {
-                                            captionsData.push({
-                                                start,
-                                                end: start + duration,
-                                                text: text.trim()
-                                            });
-                                        }
-                                    }
-                                });
-                                
-                                console.log(`Parsed ${captionsData.length} captions from JSON`);
-                                
-                                // Display captions if they're visible
-                                if (isCaptionsVisible && captionsData.length > 0) {
-                                    displayCaptions();
-                                    return;
-                                }
-                            }
-                            
-                            // If we got here, we didn't find usable captions
-                            throw new Error('No usable captions found in JSON response');
-                        } catch (jsonParseError) {
-                            console.error('Error parsing JSON captions:', jsonParseError);
-                            throw new Error('Failed to parse JSON captions');
-                        }
-                    } else {
-                        throw new Error(`Alt CORS proxy response not OK: ${altProxyResponse.status}`);
-                    }
-                } catch (altProxyError) {
-                    console.error('Error fetching captions through alt CORS proxy:', altProxyError);
-                    // Continue to next fallback method
-                }
-                
-                // Fallback to YouTube Data API
-                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
-                
-                // First, get the caption tracks available for this video
-                const captionTracksUrl = `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`;
-                
-                try {
-                    const response = await fetch(captionTracksUrl);
-                    const data = await response.json();
-                    
-                    if (data.error) {
-                        console.error('YouTube API error:', data.error);
-                        throw new Error('Failed to fetch caption tracks');
-                    }
-                    
-                    if (!data.items || data.items.length === 0) {
-                        console.log('No caption tracks available for this video');
-                        if (isCaptionsVisible) {
-                            captionsText.innerHTML = 'No captions available for this video.';
-                        }
-                        return;
-                    }
-                    
-                    console.log('Caption tracks:', data.items);
-                    
-                    // Since we can't directly access the caption content through the API (requires OAuth),
-                    // we'll use a different approach - we'll fetch the transcript from a public API
-                    
-                    // Use a proxy service to get the transcript
-                    const transcriptUrl = `https://youtubetranscript.com/?server_vid=${videoId}`;
-                    
-                    const transcriptResponse = await fetch(transcriptUrl);
-                    const transcriptData = await transcriptResponse.text();
-                    
-                    // Parse the transcript data (it's in a specific format)
-                    try {
-                        // The response is usually a JSON string inside a JavaScript variable
-                        const jsonMatch = transcriptData.match(/var\s+json\s*=\s*(\{.*?\});/s);
-                        
-                        if (jsonMatch && jsonMatch[1]) {
-                            const parsedData = JSON.parse(jsonMatch[1]);
-                            
-                            if (parsedData && parsedData.captions) {
-                                // Convert to our caption format
-                                captionsData = parsedData.captions.map(caption => ({
-                                    start: parseFloat(caption.start),
-                                    end: parseFloat(caption.start) + parseFloat(caption.duration),
-                                    text: caption.text
-                                }));
-                                
-                                console.log(`Parsed ${captionsData.length} captions`);
-                                
-                                // Display captions if they're visible
-                                if (isCaptionsVisible) {
-                                    displayCaptions();
-                                }
-                                return;
-                            }
-                        }
-                        
-                        // If we couldn't parse the transcript, fall back to our backup method
-                        throw new Error('Could not parse transcript data');
-                    } catch (transcriptError) {
-                        console.error('Error parsing transcript:', transcriptError);
-                        
-                        // Fall back to our backup method - use the YouTube player's captions
-                        console.log('Falling back to YouTube player captions');
-                        setupCaptionTracking();
-                        
-                        // Show a message to the user
-                        if (isCaptionsVisible) {
-                            captionsText.innerHTML = `
-                                <div style="text-align: center; padding: 20px;">
-                                    <p>Captions are now enabled in the video player.</p>
-                                    <p>Play the video to see captions appear here as they are displayed in the video.</p>
-                                    <p>Note: For technical reasons, captions will be collected as the video plays.</p>
-                                </div>
-                            `;
-                        }
-                    }
-                } catch (apiError) {
-                    console.error('Error fetching captions from API:', apiError);
-                    
-                    // Fall back to our backup method - use the YouTube player's captions
-                    console.log('Falling back to YouTube player captions');
-                    setupCaptionTracking();
-                    
-                    // Show a message to the user
-                    if (isCaptionsVisible) {
-                        captionsText.innerHTML = `
-                            <div style="text-align: center; padding: 20px;">
-                                <p>Captions are now enabled in the video player.</p>
-                                <p>Play the video to see captions appear here as they are displayed in the video.</p>
-                                <p>Note: For technical reasons, captions will be collected as the video plays.</p>
-                            </div>
-                        `;
-                    }
+                // Show a message to the user
+                if (isCaptionsVisible) {
+                    captionsText.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p>Captions are now enabled in the video player.</p>
+                            <p>Play the video to see captions appear here as they are displayed in the video.</p>
+                            <p>Note: For technical reasons, captions will be collected as the video plays.</p>
+                        </div>
+                    `;
                 }
                 
             } catch (error) {
@@ -2496,6 +2602,39 @@
                 }
             });
             
+            // Create a MutationObserver to watch for caption changes in the DOM
+            try {
+                // Create a MutationObserver to watch for changes in the DOM
+                const captionObserver = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                            // Check if any of the added nodes contain caption text
+                            mutation.addedNodes.forEach(function(node) {
+                                if (node.textContent && node.textContent.trim() && 
+                                    !isNavigationText(node.textContent.trim())) {
+                                    console.log('Detected caption change:', node.textContent.trim());
+                                    addCaptionIfNew(node.textContent.trim(), currentVideoTime);
+                                }
+                            });
+                        }
+                    });
+                });
+                
+                // Try to observe the YouTube player container
+                const playerContainer = document.querySelector('.youtube-embed');
+                if (playerContainer) {
+                    captionObserver.observe(playerContainer, { 
+                        childList: true, 
+                        subtree: true,
+                        characterData: true
+                    });
+                    console.log('Set up MutationObserver on player container');
+                }
+            } catch (e) {
+                console.error('Error setting up MutationObserver:', e);
+            }
+            
+            // Use a more aggressive approach to capture captions
             timeTrackingInterval = setInterval(() => {
                 if (player && player.getCurrentTime) {
                     currentVideoTime = Math.floor(player.getCurrentTime());
@@ -2506,7 +2645,8 @@
                     try {
                         if (player.getOptions && player.getOption) {
                             const captionText = player.getOption('captions', 'text');
-                            if (captionText) {
+                            if (captionText && !isNavigationText(captionText)) {
+                                console.log('Got caption from player API:', captionText);
                                 addCaptionIfNew(captionText, currentVideoTime);
                             }
                         }
@@ -2518,31 +2658,37 @@
                     try {
                         // Look for caption elements in the iframe
                         const iframe = document.querySelector('.youtube-embed iframe');
-                        if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
-                            const iframeDoc = iframe.contentWindow.document;
+                        if (iframe) {
+                            // Try to capture captions directly from the video
+                            try {
+                                // Use postMessage to request captions from the iframe
+                                iframe.contentWindow.postMessage(JSON.stringify({
+                                    event: 'command',
+                                    func: 'getCaptions',
+                                    args: []
+                                }), '*');
+                            } catch (e) {
+                                // Ignore cross-origin errors
+                            }
                             
-                            // Try multiple selectors for captions
-                            const selectors = [
-                                '.ytp-caption-segment',
-                                '.captions-text',
-                                '.caption-text',
-                                '.ytp-caption-window-container',
-                                '.ytp-caption-window'
-                            ];
-                            
-                            for (const selector of selectors) {
-                                const captionElements = iframeDoc.querySelectorAll(selector);
-                                if (captionElements.length > 0) {
-                                    let fullText = '';
-                                    captionElements.forEach(el => {
-                                        fullText += el.textContent + ' ';
-                                    });
-                                    
-                                    if (fullText.trim()) {
-                                        addCaptionIfNew(fullText.trim(), currentVideoTime);
-                                        break; // Found captions, no need to try other selectors
+                            // Try to access the iframe document (may fail due to CORS)
+                            try {
+                                if (iframe.contentDocument) {
+                                    const captionElements = iframe.contentDocument.querySelectorAll('.ytp-caption-segment');
+                                    if (captionElements.length > 0) {
+                                        let fullText = '';
+                                        captionElements.forEach(el => {
+                                            fullText += el.textContent + ' ';
+                                        });
+                                        
+                                        if (fullText.trim() && !isNavigationText(fullText.trim())) {
+                                            console.log('Got caption from iframe document:', fullText.trim());
+                                            addCaptionIfNew(fullText.trim(), currentVideoTime);
+                                        }
                                     }
                                 }
+                            } catch (e) {
+                                // Ignore cross-origin errors
                             }
                         }
                     } catch (e) {
@@ -2569,10 +2715,77 @@
                                     fullText += el.textContent + ' ';
                                 });
                                 
-                                if (fullText.trim()) {
+                                if (fullText.trim() && !isNavigationText(fullText.trim())) {
+                                    console.log('Got caption from document:', fullText.trim());
                                     addCaptionIfNew(fullText.trim(), currentVideoTime);
                                     break; // Found captions, no need to try other selectors
                                 }
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore errors
+                    }
+                    
+                    // Method 4: Try to extract captions from the video element directly
+                    try {
+                        const videoElement = document.querySelector('.youtube-embed video');
+                        if (videoElement && videoElement.textTracks && videoElement.textTracks.length > 0) {
+                            const track = videoElement.textTracks[0];
+                            if (track.activeCues && track.activeCues.length > 0) {
+                                const cue = track.activeCues[0];
+                                if (cue && cue.text && !isNavigationText(cue.text)) {
+                                    console.log('Got caption from video textTrack:', cue.text);
+                                    addCaptionIfNew(cue.text, currentVideoTime);
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore errors
+                    }
+                    
+                    // Method 5: Use a direct approach - capture the visible text in the video area
+                    try {
+                        // Get the text content of the player area
+                        const playerArea = document.querySelector('.youtube-embed');
+                        if (playerArea) {
+                            // Create a temporary element to hold a clone of the player area
+                            const temp = document.createElement('div');
+                            temp.style.position = 'absolute';
+                            temp.style.left = '-9999px';
+                            temp.style.top = '-9999px';
+                            temp.innerHTML = playerArea.innerHTML;
+                            document.body.appendChild(temp);
+                            
+                            // Try to find text that looks like captions
+                            const textNodes = [];
+                            const walker = document.createTreeWalker(
+                                temp,
+                                NodeFilter.SHOW_TEXT,
+                                null,
+                                false
+                            );
+                            
+                            let node;
+                            while (node = walker.nextNode()) {
+                                if (node.textContent.trim().length > 0) {
+                                    textNodes.push(node.textContent.trim());
+                                }
+                            }
+                            
+                            // Remove the temporary element
+                            document.body.removeChild(temp);
+                            
+                            // Find the text node that is most likely to be a caption
+                            // (usually longer than a few characters but not too long)
+                            const captionText = textNodes.find(text => 
+                                text.length > 5 && text.length < 200 && 
+                                !isNavigationText(text) &&
+                                !/menu|settings|play|pause|volume|mute|unmute|fullscreen|exit/i.test(text)
+                            );
+                            
+                            if (captionText) {
+                                console.log('Got caption from text extraction:', captionText);
+                                addCaptionIfNew(captionText, currentVideoTime);
                             }
                         }
                     } catch (e) {
@@ -2587,12 +2800,33 @@
         
         // Helper function to add a caption if it's new
         function addCaptionIfNew(captionText, currentTime) {
+            if (!captionText || captionText.trim() === '') {
+                return; // Ignore empty captions
+            }
+            
+            captionText = captionText.trim();
+            
+            // Additional check to filter out navigation elements
+            if (isNavigationText(captionText)) {
+                return; // Ignore navigation text
+            }
+            
+            // Check if the text is too short or too long
+            if (captionText.length < 3 || captionText.length > 300) {
+                return; // Ignore very short or very long text
+            }
+            
             // Check if we already have this caption at this time
             const existingCaption = captionsData.find(c => 
-                Math.abs(c.start - currentTime) < 1 && c.text === captionText
+                Math.abs(c.start - currentTime) < 2 && 
+                (c.text === captionText || 
+                 c.text.includes(captionText) || 
+                 captionText.includes(c.text))
             );
             
             if (!existingCaption) {
+                console.log(`Adding new caption at ${currentTime}s: "${captionText}"`);
+                
                 // Add this caption to our data
                 captionsData.push({
                     start: currentTime,
@@ -2628,10 +2862,19 @@
             
             // Create HTML for all captions
             let html = '';
+            
+            // Add a header with information
+            html += `<div class="caption-header" style="text-align: center; margin-bottom: 15px;">
+                <p>Found ${captionsData.length} caption segments</p>
+                <p style="font-size: 0.9em; color: #666;">Click on a caption to jump to that time</p>
+            </div>`;
+            
+            // Add captions
             captionsData.forEach((caption, index) => {
                 const formattedTime = formatTime(caption.start);
-                html += `<div class="caption-text" data-index="${index}" data-start="${caption.start}" data-end="${caption.end}">
-                    <span class="caption-time">[${formattedTime}]</span> ${caption.text}
+                html += `<div class="caption-text" data-index="${index}" data-start="${caption.start}" data-end="${caption.end}" style="margin-bottom: 10px; padding: 5px; border-radius: 4px; cursor: pointer;">
+                    <span class="caption-time" style="color: #666; font-size: 0.9em;">[${formattedTime}]</span> 
+                    <span class="caption-content" style="display: block;">${caption.text}</span>
                 </div>`;
             });
             
@@ -2642,19 +2885,28 @@
                 const scrollTop = captionsContainer.scrollTop;
                 
                 // Update the HTML
-            captionsText.innerHTML = html;
-            
-            // Add click event to captions to seek to that time
-            const captionElements = captionsText.querySelectorAll('.caption-text');
-            captionElements.forEach(element => {
-                element.addEventListener('click', function() {
-                    const start = parseFloat(this.dataset.start);
-                    if (player && player.seekTo) {
-                        player.seekTo(start, true);
-                        player.playVideo();
-                    }
+                captionsText.innerHTML = html;
+                
+                // Add click event to captions to seek to that time
+                const captionElements = captionsText.querySelectorAll('.caption-text');
+                captionElements.forEach(element => {
+                    element.addEventListener('click', function() {
+                        const start = parseFloat(this.dataset.start);
+                        if (player && player.seekTo) {
+                            player.seekTo(start, true);
+                            player.playVideo();
+                        }
+                    });
+                    
+                    // Add hover effect
+                    element.addEventListener('mouseover', function() {
+                        this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    });
+                    
+                    element.addEventListener('mouseout', function() {
+                        this.style.backgroundColor = '';
+                    });
                 });
-            });
                 
                 // Restore the scroll position if we're not currently viewing the active caption
                 if (!document.querySelector('.caption-text.active') || !document.querySelector('.caption-text.active').scrollIntoView) {
@@ -2683,16 +2935,25 @@
                 
                 // Remove active class from all captions
                 const allCaptions = document.querySelectorAll('.caption-text');
-                allCaptions.forEach(caption => caption.classList.remove('active'));
+                allCaptions.forEach(caption => {
+                    caption.classList.remove('active');
+                    caption.style.backgroundColor = '';
+                    caption.style.borderLeft = '';
+                });
                 
                 // Add active class to current caption
                 if (activeCaptionIndex >= 0) {
                     const activeCaption = document.querySelector(`.caption-text[data-index="${activeCaptionIndex}"]`);
                     if (activeCaption) {
                         activeCaption.classList.add('active');
+                        activeCaption.style.backgroundColor = 'rgba(66, 133, 244, 0.2)';
+                        activeCaption.style.borderLeft = '3px solid #4285f4';
                         
                         // Scroll to make active caption visible
                         activeCaption.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // Log the active caption for debugging
+                        console.log(`Active caption: "${captionsData[activeCaptionIndex].text}"`);
                     }
                 }
             }
@@ -2753,6 +3014,254 @@
                 return null;
             }
         }
+
+        // Helper function to check if text is navigation text from our UI
+        function isNavigationText(text) {
+            if (!text) return true;
+            
+            // Check if the text contains navigation elements from our UI
+            const navigationPatterns = [
+                'Next Video',
+                'PlayList',
+                'Save Timestamp',
+                'Show Video',
+                'Hide Captions',
+                'Show Captions',
+                'Home',
+                'About',
+                'Services',
+                'Contact',
+                'Documentation',
+                'Night Style',
+                'Logout',
+                'Sign in',
+                'Solo Leveling'
+            ];
+            
+            // Check if the text contains timestamps in our format
+            if (/\[\d+:\d+\]/.test(text)) {
+                return true;
+            }
+            
+            // Check if the text contains any of our navigation patterns
+            for (const pattern of navigationPatterns) {
+                if (text.includes(pattern)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+    </script>
+    
+    <!-- Performance Optimization -->
+    <script>
+        // Performance optimization module
+        const PerformanceOptimizer = (function() {
+            // Initialize performance optimization
+            function init() {
+                // Implement lazy loading for images
+                lazyLoadImages();
+                
+                // Optimize YouTube video loading
+                optimizeVideoLoading();
+                
+                // Preconnect to important domains
+                preconnectToDomains();
+                
+                // Register performance observer
+                registerPerformanceObserver();
+            }
+            
+            // Lazy load images
+            function lazyLoadImages() {
+                // Check if native lazy loading is supported
+                if ('loading' in HTMLImageElement.prototype) {
+                    // Use native lazy loading
+                    const images = document.querySelectorAll('img:not([loading])');
+                    images.forEach(img => {
+                        img.loading = 'lazy';
+                    });
+                } else {
+                    // Fallback to Intersection Observer for lazy loading
+                    const imageObserver = new IntersectionObserver((entries, observer) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const img = entry.target;
+                                const src = img.getAttribute('data-src');
+                                
+                                if (src) {
+                                    img.src = src;
+                                    img.removeAttribute('data-src');
+                                }
+                                
+                                observer.unobserve(img);
+                            }
+                        });
+                    });
+                    
+                    // Target images with data-src attribute
+                    const lazyImages = document.querySelectorAll('img[data-src]');
+                    lazyImages.forEach(img => {
+                        imageObserver.observe(img);
+                    });
+                }
+            }
+            
+            // Optimize YouTube video loading
+            function optimizeVideoLoading() {
+                // Use Intersection Observer to load videos only when they come into view
+                const videoObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const videoContainer = entry.target;
+                            const videoId = videoContainer.getAttribute('data-video-id');
+                            
+                            if (videoId) {
+                                // Replace placeholder with actual iframe when in view
+                                videoContainer.innerHTML = `
+                                    <iframe 
+                                        width="100%" 
+                                        height="100%" 
+                                        src="https://www.youtube.com/embed/${videoId}?rel=0" 
+                                        title="YouTube video player" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                    </iframe>
+                                `;
+                                
+                                // Stop observing this container
+                                observer.unobserve(videoContainer);
+                            }
+                        }
+                    });
+                }, {
+                    rootMargin: '200px' // Load videos when they're within 200px of viewport
+                });
+                
+                // Target video containers with data-video-id attribute
+                const lazyVideoContainers = document.querySelectorAll('.video-container[data-video-id]');
+                lazyVideoContainers.forEach(container => {
+                    // Create placeholder with thumbnail
+                    const videoId = container.getAttribute('data-video-id');
+                    if (videoId) {
+                        container.innerHTML = `
+                            <div class="video-placeholder" style="width: 100%; height: 100%; position: relative; cursor: pointer;">
+                                <img 
+                                    src="https://i.ytimg.com/vi/${videoId}/hqdefault.jpg" 
+                                    alt="Video thumbnail" 
+                                    style="width: 100%; height: 100%; object-fit: cover;"
+                                    loading="lazy"
+                                />
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                    <svg width="68" height="48" viewBox="0 0 68 48"><path d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z" fill="#f00"></path><path d="M 45,24 27,14 27,34" fill="#fff"></path></svg>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Add click handler to load video on click
+                        const placeholder = container.querySelector('.video-placeholder');
+                        if (placeholder) {
+                            placeholder.addEventListener('click', () => {
+                                container.innerHTML = `
+                                    <iframe 
+                                        width="100%" 
+                                        height="100%" 
+                                        src="https://www.youtube.com/embed/${videoId}?rel=0&autoplay=1" 
+                                        title="YouTube video player" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                    </iframe>
+                                `;
+                            });
+                        }
+                    }
+                    
+                    videoObserver.observe(container);
+                });
+            }
+            
+            // Preconnect to important domains
+            function preconnectToDomains() {
+                const domains = [
+                    'https://www.youtube.com',
+                    'https://www.googleapis.com',
+                    'https://www.gstatic.com',
+                    'https://firestore.googleapis.com',
+                    'https://identitytoolkit.googleapis.com',
+                    'https://i.ytimg.com'
+                ];
+                
+                domains.forEach(domain => {
+                    const link = document.createElement('link');
+                    link.rel = 'preconnect';
+                    link.href = domain;
+                    document.head.appendChild(link);
+                    
+                    // Also add DNS-prefetch as fallback
+                    const dnsLink = document.createElement('link');
+                    dnsLink.rel = 'dns-prefetch';
+                    dnsLink.href = domain;
+                    document.head.appendChild(dnsLink);
+                });
+            }
+            
+            // Register performance observer to monitor performance metrics
+            function registerPerformanceObserver() {
+                if ('PerformanceObserver' in window) {
+                    // Create performance observer for Largest Contentful Paint (LCP)
+                    const lcpObserver = new PerformanceObserver((entryList) => {
+                        const entries = entryList.getEntries();
+                        const lastEntry = entries[entries.length - 1];
+                        console.log('LCP:', lastEntry.startTime, 'Element:', lastEntry.element);
+                    });
+                    
+                    // Start observing LCP
+                    lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+                    
+                    // Create performance observer for First Input Delay (FID)
+                    const fidObserver = new PerformanceObserver((entryList) => {
+                        const entries = entryList.getEntries();
+                        entries.forEach(entry => {
+                            console.log('FID:', entry.processingStart - entry.startTime);
+                        });
+                    });
+                    
+                    // Start observing FID
+                    fidObserver.observe({ type: 'first-input', buffered: true });
+                    
+                    // Create performance observer for Cumulative Layout Shift (CLS)
+                    const clsObserver = new PerformanceObserver((entryList) => {
+                        let cls = 0;
+                        
+                        entryList.getEntries().forEach(entry => {
+                            if (!entry.hadRecentInput) {
+                                cls += entry.value;
+                            }
+                        });
+                        
+                        console.log('CLS:', cls);
+                    });
+                    
+                    // Start observing CLS
+                    clsObserver.observe({ type: 'layout-shift', buffered: true });
+                }
+            }
+            
+            // Return public methods
+            return {
+                init: init,
+                lazyLoadImages: lazyLoadImages,
+                optimizeVideoLoading: optimizeVideoLoading
+            };
+        })();
+        
+        // Initialize performance optimization when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            PerformanceOptimizer.init();
+        });
     </script>
 </body>
 </html> 

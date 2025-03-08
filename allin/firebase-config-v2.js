@@ -1,5 +1,6 @@
 // Firebase configuration
 const firebaseConfig = {
+  // Use environment variables if available, otherwise use restricted keys
   apiKey: window.ENV?.FIREBASE?.API_KEY || "AIzaSyCWq1-Dst9nyWJCJVkMNrfnC0Xp4od8SGY",
   authDomain: window.ENV?.FIREBASE?.AUTH_DOMAIN || "projekt-9ef39.firebaseapp.com",
   projectId: window.ENV?.FIREBASE?.PROJECT_ID || "projekt-9ef39",
@@ -8,6 +9,30 @@ const firebaseConfig = {
   appId: window.ENV?.FIREBASE?.APP_ID || "1:215580281626:web:2d9b2c372b441ffa8c7aa3",
   measurementId: window.ENV?.FIREBASE?.MEASUREMENT_ID || "G-PLPDKJB3E0"
 };
+
+// Security measures for API keys
+(function() {
+  // Check if we're in a secure context (HTTPS or localhost)
+  const isSecureContext = window.location.protocol === 'https:' || 
+                          window.location.hostname === 'localhost' ||
+                          window.location.hostname === '127.0.0.1';
+  
+  if (!isSecureContext) {
+    console.warn('Application is running in an insecure context. API keys may be exposed.');
+  }
+  
+  // Set HTTP referrer policy to restrict referrer information
+  const metaReferrer = document.createElement('meta');
+  metaReferrer.name = 'referrer';
+  metaReferrer.content = 'strict-origin-when-cross-origin';
+  document.head.appendChild(metaReferrer);
+  
+  // Add Content Security Policy to restrict API usage to your domain
+  const metaCSP = document.createElement('meta');
+  metaCSP.httpEquiv = 'Content-Security-Policy';
+  metaCSP.content = "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.gstatic.com";
+  document.head.appendChild(metaCSP);
+})();
 
 // Initialize Firebase
 if (!firebase.apps.length) {
@@ -34,7 +59,7 @@ googleAuthProvider.setCustomParameters({
 console.log("Firebase initialized with project:", firebaseConfig.projectId);
 
 // Export for use in other files
-window.firebaseConfig = firebaseConfig;
+window.firebaseConfig = Object.freeze(firebaseConfig); // Make immutable
 window.auth = auth;
 window.db = db;
 window.storage = storage;
