@@ -1,0 +1,23 @@
+[33mcommit 14b8ee92582e8345e43e232e7a3f9fb681efb1d7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Peter Tomulec <C:\Users\Peter\AppData\Roaming\The Bat!>
+Date:   Sat Mar 8 19:44:24 2025 +0100
+
+    Update project files and add documentation
+
+[33mcommit 5dfe036df1ea46aebd7f7dcfe121e35d5b9ffe31[m
+Author: Peter Tomulec <C:\Users\Peter\AppData\Roaming\The Bat!>
+Date:   Sat Mar 8 18:54:34 2025 +0100
+
+    Project cleanup: removed test files and optimized structure
+
+[33mcommit 78bc169ee7703faa64c6a051891c9194a988df2f[m
+Author: Peter Tomulec <C:\Users\Peter\AppData\Roaming\The Bat!>
+Date:   Sat Mar 8 17:10:03 2025 +0100
+
+    Improve security by using environment variables for API keys
+
+[33mcommit 9fb4a1a5d976764a0c2e92d67d6c478ff60cfa97[m
+Author: Peter Tomulec <C:\Users\Peter\AppData\Roaming\The Bat!>
+Date:   Sat Mar 8 17:04:32 2025 +0100
+
+    Initial commit

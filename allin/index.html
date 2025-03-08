@@ -1089,7 +1089,7 @@
         async function initializePlaylist() {
             try {
                 console.log("Initializing playlist...");
-                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY';
                 
                 // First, get playlist info to know the total number of items
                 const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id=${playlistId}&key=${apiKey}`;
@@ -1142,7 +1142,7 @@
         async function loadPlaylistVideos(pageToken = null) {
             try {
                 // Use the YouTube Data API with the provided API key
-                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY';
                 
                 // Zvýšime počet videí na stránku
                 const pageSize = 50; // Maximálna hodnota povolená API
@@ -1526,7 +1526,7 @@
                 console.log(`Attempting to load videos at position ${position}`);
                 isLoadingMoreVideos = true;
                 
-                const apiKey = 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY';
                 
                 // Jednoduchší prístup - načítame niekoľko stránok postupne
                 // a hľadáme video s požadovanou pozíciou
@@ -2523,7 +2523,7 @@
         // Get the total number of videos in the playlist
         async function getPlaylistItemCount(playlistId) {
             try {
-                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU';
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY';
                 
                 const playlistInfoUrl = `https://www.googleapis.com/youtube/v3/playlists?part=contentDetails&id=${playlistId}&key=${apiKey}`;
                 const infoResponse = await fetch(playlistInfoUrl);
@@ -2541,7 +2541,7 @@
         // Get video duration from YouTube API
         async function getVideoDuration(videoId) {
             try {
-                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY'; // Same API key used elsewhere
                 
                 const videoDetailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${apiKey}`;
                 const videoDetailsResponse = await fetch(videoDetailsUrl);
@@ -2559,7 +2559,7 @@
         // Get captions for a YouTube video
         async function getYouTubeCaptions(videoId, language = 'en') {
             try {
-                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'; // Same API key used elsewhere
+                const apiKey = window.ENV?.YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY'; // Same API key used elsewhere
                 
                 const captionTracksUrl = `https://www.googleapis.com/youtube/v3/captions?part=snippet&videoId=${videoId}&key=${apiKey}`;
                 // ... existing code ...

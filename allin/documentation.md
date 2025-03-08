@@ -246,7 +246,7 @@ const NetworkMonitor = (function() {
     function checkNetworkStatus() {
         return new Promise((resolve) => {
             // Use fetch to check if we can actually reach the server
-            fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=PL79KHfFXBQXXOg_UAdkVtnz_m3zVr86QB&key=' + (window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'), { 
+            fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=PL79KHfFXBQXXOg_UAdkVtnz_m3zVr86QB&key=' + (window.ENV?.YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY'), { 
                 method: 'HEAD',
                 mode: 'cors',
                 cache: 'no-cache',
