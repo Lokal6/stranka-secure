@@ -652,30 +652,68 @@
             // Check network status
             function checkNetworkStatus() {
                 return new Promise((resolve) => {
-                    // Use fetch to check if we can actually reach the server
-                    fetch('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=1&playlistId=PL79KHfFXBQXXOg_UAdkVtnz_m3zVr86QB&key=' + (window.ENV?.YOUTUBE_API_KEY || 'AIzaSyDbwMgehgSGy7yZ9aoHwFrR_mm4uu5PZTU'), { 
+                    // Try multiple endpoints in sequence
+                    tryEndpoint('https://www.google.com')
+                        .then(success => {
+                            if (success) {
+                                handleSuccess();
+                                resolve(true);
+                            } else {
+                                // Try a backup endpoint
+                                return tryEndpoint('https://www.cloudflare.com');
+                            }
+                        })
+                        .then(success => {
+                            if (success) {
+                                handleSuccess();
+                                resolve(true);
+                            } else {
+                                handleFailure();
+                                resolve(false);
+                                
+                                // Schedule automatic retry after 30 seconds
+                                setTimeout(() => {
+                                    checkNetworkStatus();
+                                }, 30000);
+                            }
+                        })
+                        .catch(() => {
+                            handleFailure();
+                            resolve(false);
+                            
+                            // Schedule automatic retry after 30 seconds
+                            setTimeout(() => {
+                                checkNetworkStatus();
+                            }, 30000);
+                        });
+                });
+                
+                function tryEndpoint(url) {
+                    return fetch(url, { 
                         method: 'HEAD',
-                        mode: 'cors',
+                        mode: 'no-cors',
                         cache: 'no-cache',
                         timeout: 5000
                     })
-                    .then(() => {
-                        isOnline = true;
-                        notifyListeners();
-                        displayNetworkStatus();
-                        resolve(true);
-                    })
-                    .catch(() => {
-                        // We might be online but can't reach the server
-                        if (navigator.onLine) {
-                            console.warn('Browser reports online but cannot reach server');
-                        }
-                        isOnline = false;
-                        notifyListeners();
-                        displayNetworkStatus();
-                        resolve(false);
-                    });
-                });
+                    .then(() => true)
+                    .catch(() => false);
+                }
+                
+                function handleSuccess() {
+                    isOnline = true;
+                    notifyListeners();
+                    displayNetworkStatus();
+                }
+                
+                function handleFailure() {
+                    // We might be online but can't reach the server
+                    if (navigator.onLine) {
+                        console.warn('Browser reports online but cannot reach server');
+                    }
+                    isOnline = false;
+                    notifyListeners();
+                    displayNetworkStatus();
+                }
             }
             
             // Display network status to user
@@ -785,10 +823,31 @@
                         const retryButton = document.getElementById('retryConnection');
                         if (retryButton) {
                             retryButton.addEventListener('click', () => {
+                                // Show attempting to reconnect message
+                                retryButton.textContent = 'Attempting to reconnect...';
+                                retryButton.disabled = true;
+                                
                                 NetworkMonitor.checkStatus().then(isOnline => {
                                     if (isOnline) {
                                         // Reload player if we're back online
                                         location.reload();
+                                    } else {
+                                        // Reset button if still offline
+                                        retryButton.textContent = 'Retry Connection';
+                                        retryButton.disabled = false;
+                                        
+                                        // Show temporary message
+                                        const offlineMessage = document.createElement('div');
+                                        offlineMessage.textContent = 'Still offline. Will retry automatically in 30 seconds.';
+                                        offlineMessage.style.color = '#ff9800';
+                                        offlineMessage.style.marginTop = '10px';
+                                        offlineMessage.style.fontSize = '14px';
+                                        retryButton.parentNode.appendChild(offlineMessage);
+                                        
+                                        // Remove message after 5 seconds
+                                        setTimeout(() => {
+                                            offlineMessage.remove();
+                                        }, 5000);
                                     }
                                 });
                             });

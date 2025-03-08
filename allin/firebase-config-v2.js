@@ -46,6 +46,15 @@ const auth = firebase.auth();
 const db = firebase.firestore ? firebase.firestore() : null;
 const storage = firebase.storage ? firebase.storage() : null;
 
+// Set persistence to LOCAL - user will stay signed in even after browser close
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(() => {
+    console.log("Firebase auth persistence set to LOCAL");
+  })
+  .catch((error) => {
+    console.error("Error setting auth persistence:", error);
+  });
+
 // Set up Google Auth Provider
 const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
 googleAuthProvider.addScope('profile');
